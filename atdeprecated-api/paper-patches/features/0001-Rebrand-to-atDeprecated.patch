@@ -1,0 +1,33 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Sat, 19 Jul 2025 19:19:07 +0700
+Subject: [PATCH] Rebrand to atDeprecated
+
+
+diff --git a/src/main/java/io/papermc/paper/ServerBuildInfo.java b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+index db5e2f10278c20286779362cfdfadb2f42c724e0..1aa001e2c9d3043498ba54e9795c14d91a86c475 100644
+--- a/src/main/java/io/papermc/paper/ServerBuildInfo.java
++++ b/src/main/java/io/papermc/paper/ServerBuildInfo.java
+@@ -19,7 +19,7 @@ public interface ServerBuildInfo {
+      */
+     Key BRAND_PAPER_ID = Key.key("papermc", "paper");
+ 
+-    // Luminol start
++    // Luminol start // atDeprecated start
+     /**
+      * The brand id for folia
+      */
+@@ -28,8 +28,11 @@ public interface ServerBuildInfo {
+      * The brand id for Luminol.
+      */
+     Key BRAND_LUMINOL_ID = Key.key("luminolmc", "luminol");
+-    // Luminol end
+-
++    /**
++     * The brand id for Luminol.
++     */
++    Key BRAND_ATDEPRECATED_ID = Key.key("mntale", "atdeprecated");
++    // Luminol end // atDeprecated end
+     /**
+      * Gets the {@code ServerBuildInfo}.
+      *
