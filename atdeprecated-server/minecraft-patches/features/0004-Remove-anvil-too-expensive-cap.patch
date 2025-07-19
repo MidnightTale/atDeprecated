@@ -13,7 +13,7 @@ index 2346e1fc0c94084c3bb95c00be8aac36ae5f26ae..5915b6722b727875660ee9c94bd8ed5c
      // CraftBukkit start
      public static final int DEFAULT_DENIED_COST = -1;
 -    public int maximumRepairCost = 40;
-+    this.maximumRepairCost = Integer.MAX_VALUE; // atDeprecated - Remove too expensive anvil cap
++    public int maximumRepairCost = Integer.MAX_VALUE; // atDeprecated - Remove too expensive anvil cap
      private org.bukkit.craftbukkit.inventory.view.CraftAnvilView bukkitEntity;
      // CraftBukkit end
      public boolean bypassEnchantmentLevelRestriction = false; // Paper - bypass anvil level restrictions
