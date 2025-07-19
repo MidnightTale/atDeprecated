@@ -1,0 +1,119 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Sun, 20 Jul 2025 01:12:39 +0700
+Subject: [PATCH] Toggleinsomnia phantom spawn per player
+
+
+diff --git a/net/minecraft/commands/Commands.java b/net/minecraft/commands/Commands.java
+index 8a90aa5c145f53afbb3f2371f97cb09974f30bbb..cd0c71504b0773ce0db4954bf5cc5d0f5ff19755 100644
+--- a/net/minecraft/commands/Commands.java
++++ b/net/minecraft/commands/Commands.java
+@@ -128,6 +128,7 @@ import net.minecraft.server.commands.TellRawCommand;
+ import net.minecraft.server.commands.TickCommand;
+ import net.minecraft.server.commands.TimeCommand;
+ import net.minecraft.server.commands.TitleCommand;
++import net.minecraft.server.commands.ToggleInsomniaCommand;
+ import net.minecraft.server.commands.TransferCommand;
+ import net.minecraft.server.commands.TriggerCommand;
+ import net.minecraft.server.commands.VersionCommand;
+@@ -246,6 +247,7 @@ public class Commands {
+         //TickCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         TimeCommand.register(this.dispatcher);
+         TitleCommand.register(this.dispatcher, context);
++        ToggleInsomniaCommand.register(this.dispatcher); // atDeprecated - Register /toggleinsomnia command
+         //TriggerCommand.register(this.dispatcher); // Folia - region threading - TODO later
+         //WaypointCommand.register(this.dispatcher, context); // Folia - region threading - TODO later
+         WeatherCommand.register(this.dispatcher);
+diff --git a/net/minecraft/server/commands/ToggleInsomniaCommand.java b/net/minecraft/server/commands/ToggleInsomniaCommand.java
+new file mode 100644
+index 0000000000000000000000000000000000000000..8725b3926f37c8e606096011677fa68a78be87ad
+--- /dev/null
++++ b/net/minecraft/server/commands/ToggleInsomniaCommand.java
+@@ -0,0 +1,33 @@
++package net.minecraft.server.commands;
++
++import com.mojang.brigadier.CommandDispatcher;
++import com.mojang.brigadier.context.CommandContext;
++import com.mojang.brigadier.exceptions.CommandSyntaxException;
++import net.minecraft.commands.CommandSourceStack;
++import net.minecraft.commands.Commands;
++import net.minecraft.network.chat.Component;
++import net.minecraft.world.entity.player.Player;
++import net.minecraft.ChatFormatting;
++
++public class ToggleInsomniaCommand {
++    // atDeprecated start - /toggleinsomnia command
++    public static void register(CommandDispatcher<CommandSourceStack> dispatcher) {
++        dispatcher.register(Commands.literal("toggleinsomnia")
++            .executes(ToggleInsomniaCommand::toggleInsomnia));
++    }
++
++    private static int toggleInsomnia(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
++        Player player = context.getSource().getPlayerOrException();
++        boolean current = player.isInsomniaEnabled();
++        player.setInsomniaEnabled(!current);
++        player.displayClientMessage(
++            Component.literal("Insomnia: ")
++                .append(Component.literal(!current ? "Enabled" : "Disabled")
++                    .withStyle(!current ? ChatFormatting.GREEN : ChatFormatting.RED)
++                ),
++            true // action bar
++        );
++        return 1;
++    }
++    // atDeprecated end
++} 
+\ No newline at end of file
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index 2842314c712449625e9275aff7707c916c3ea767..0101e15160ffb47929f282a08d626f3dfa811c58 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -831,6 +831,7 @@ public abstract class Player extends LivingEntity {
+         this.currentImpulseImpactPos = input.read("current_explosion_impact_pos", Vec3.CODEC).orElse(null);
+         this.ignoreFallDamageFromCurrentImpulse = input.getBooleanOr("ignore_fall_damage_from_current_explosion", false);
+         this.currentImpulseContextResetGraceTime = input.getIntOr("current_impulse_context_reset_grace_time", 0);
++        this.insomniaEnabled = input.getBooleanOr("atDeprecated.InsomniaEnabled", true);         // atDeprecated - Load insomniaEnabled
+     }
+ 
+     @Override
+@@ -860,6 +861,7 @@ public abstract class Player extends LivingEntity {
+         output.storeNullable("current_explosion_impact_pos", Vec3.CODEC, this.currentImpulseImpactPos);
+         output.putBoolean("ignore_fall_damage_from_current_explosion", this.ignoreFallDamageFromCurrentImpulse);
+         output.putInt("current_impulse_context_reset_grace_time", this.currentImpulseContextResetGraceTime);
++        output.putBoolean("atDeprecated.InsomniaEnabled", this.insomniaEnabled); // atDeprecated - Save insomniaEnabled
+     }
+ 
+     @Override
+@@ -2373,4 +2375,16 @@ public abstract class Player extends LivingEntity {
+             return this.message;
+         }
+     }
++
++    // atDeprecated start - Per-player insomnia toggle for phantom spawning
++    private boolean insomniaEnabled = true;
++
++    public boolean isInsomniaEnabled() {
++        return insomniaEnabled;
++    }
++
++    public void setInsomniaEnabled(boolean enabled) {
++        this.insomniaEnabled = enabled;
++    }
++    // atDeprecated end
+ }
+diff --git a/net/minecraft/world/level/levelgen/PhantomSpawner.java b/net/minecraft/world/level/levelgen/PhantomSpawner.java
+index 0cafe46e9a1b053c5e70f20a26b4402632d0f8bf..5f782cf3649bb2c603da442056260189cae1ecd6 100644
+--- a/net/minecraft/world/level/levelgen/PhantomSpawner.java
++++ b/net/minecraft/world/level/levelgen/PhantomSpawner.java
+@@ -41,6 +41,11 @@ public class PhantomSpawner implements CustomSpawner {
+                     // Paper end - Ability to control player's insomnia and phantoms
+                     if (level.getSkyDarken() >= 5 || !level.dimensionType().hasSkyLight()) {
+                         for (ServerPlayer serverPlayer : level.getLocalPlayers()) { // Folia - region threading
++                            // atDeprecated start - Skip players with insomnia disabled
++                            if (serverPlayer instanceof net.minecraft.world.entity.player.Player p && !p.isInsomniaEnabled()) {
++                                continue;
++                            }
++                            // atDeprecated end
+                             if (!serverPlayer.isSpectator() && (!level.paperConfig().entities.behavior.phantomsDoNotSpawnOnCreativePlayers || !serverPlayer.isCreative())) { // Paper - Add phantom creative and insomniac controls
+                                 BlockPos blockPos = serverPlayer.blockPosition();
+                                 if (!level.dimensionType().hasSkyLight() || blockPos.getY() >= level.getSeaLevel() && level.canSeeSky(blockPos)) {
