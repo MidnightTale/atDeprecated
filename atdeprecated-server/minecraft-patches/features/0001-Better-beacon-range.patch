@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Sat, 19 Jul 2025 20:15:32 +0700
+Subject: [PATCH] Better beacon range
+
+
+diff --git a/net/minecraft/world/level/block/entity/BeaconBlockEntity.java b/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
+index b27a40e69046414d5302882b72ac8b3f848e18df..295f404cd4d765885e8a6c1e3f194df40a901359 100644
+--- a/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
+@@ -142,8 +142,14 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider, Name
+     private double effectRange = -1;
+ 
+     public double getEffectRange() {
+-        if (this.effectRange < 0) {
+-            return this.levels * 10 + 10;
++        if (this.effectRange < 0) {  // atDeprecated start - Better Beacon range: 1=24, 2=32, 3=64, 4=128
++            return switch (this.levels) {
++                case 1 -> 24;
++                case 2 -> 32;
++                case 3 -> 64;
++                case 4 -> 128;
++            default -> 0;
++        }; // atDeprecated end
+         } else {
+             return effectRange;
+         }
+@@ -338,7 +344,13 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider, Name
+     }
+ 
+     private static double computeBeaconRange(final int beaconLevel) {
+-        return beaconLevel * 10 + 10; // Diff from applyEffects
++        return switch (beaconLevel) {  // atDeprecated start - Better Beacon range: 1=24, 2=32, 3=64, 4=128
++            case 1 -> 24;
++            case 2 -> 32;
++            case 3 -> 64;
++            case 4 -> 128;
++            default -> 0;
++        }; // atDeprecated end
+     }
+ 
+     public static List<Player> getHumansInRange(final Level level, final BlockPos pos, final int beaconLevel, final @Nullable BeaconBlockEntity blockEntity) {

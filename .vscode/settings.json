@@ -43,6 +43,10 @@
         {
             "folderPath": "atDeprecated\\build.gradle.kts\\",
             "color": "foldercolorizer.color_33ffcc"
+        },
+        {
+            "folderPath": "atDeprecated\\run\\",
+            "color": "foldercolorizer.color_3366ff"
         }
     ]
 }
