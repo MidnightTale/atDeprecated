@@ -1,0 +1,21 @@
+# Ignore Gradle project-specific cache directory
+.gradle
+
+# Ignore Gradle build output directory
+build
+
+/run
+
+/atdeprecated-server/build.gradle.kts
+/atdeprecated-server/src/minecraft
+atDeprecated-api/build
+/paper-server
+/folia-server
+/luminol-server
+/atDeprecated-api/build.gradle.kts
+/paper-api
+/paper-api-generator
+/folia-api
+/luminol-api
+
+.idea/

@@ -1,0 +1,48 @@
+{
+    "folder-color.pathColors": [
+        {
+            "folderPath": "atDeprecated\\folia-api\\",
+            "color": "foldercolorizer.color_ff0000"
+        },
+        {
+            "folderPath": "atDeprecated\\luminol-api\\",
+            "color": "foldercolorizer.color_ff0000"
+        },
+        {
+            "folderPath": "atDeprecated\\luminol-server\\",
+            "color": "foldercolorizer.color_ff0000"
+        },
+        {
+            "folderPath": "atDeprecated\\paper-api\\",
+            "color": "foldercolorizer.color_ff0000"
+        },
+        {
+            "folderPath": "atDeprecated\\paper-server\\",
+            "color": "foldercolorizer.color_ff0000"
+        },
+        {
+            "folderPath": "atDeprecated\\atdeprecated-server\\src\\",
+            "color": "foldercolorizer.color_ff33cc"
+        },
+        {
+            "folderPath": "atDeprecated\\atdeprecated-api\\build.gradle.kts.patch\\",
+            "color": "foldercolorizer.color_00ccff"
+        },
+        {
+            "folderPath": "atDeprecated\\atdeprecated-server\\build.gradle.kts.patch\\",
+            "color": "foldercolorizer.color_00ccff"
+        },
+        {
+            "folderPath": "atDeprecated\\gradle.properties\\",
+            "color": "foldercolorizer.color_33ffcc"
+        },
+        {
+            "folderPath": "atDeprecated\\settings.gradle.kts\\",
+            "color": "foldercolorizer.color_33ffcc"
+        },
+        {
+            "folderPath": "atDeprecated\\build.gradle.kts\\",
+            "color": "foldercolorizer.color_33ffcc"
+        }
+    ]
+}
