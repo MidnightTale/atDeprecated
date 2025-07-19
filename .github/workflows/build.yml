@@ -43,6 +43,9 @@ jobs:
           name: "${{ env.project_id_b }} CI Artifacts"
           path: "atdeprecated-server/build/libs/*-paperclip-*-mojmap.jar"
 
+      - name: Grant execute permission for SetENV
+        run: chmod +x scripts/SetENV.sh
+
       - name: SetENV
         if: github.event_name != 'pull_request'
         run: sh scripts/SetENV.sh
