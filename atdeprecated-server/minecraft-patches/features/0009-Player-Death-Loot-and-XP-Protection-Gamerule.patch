@@ -1,0 +1,203 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Mon, 21 Jul 2025 06:37:25 +0700
+Subject: [PATCH] Player Death Loot and XP Protection Gamerule
+
+
+diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
+index 06e41bca6b964ca71ea7bca547b03cdb3610ba31..1e13ff78aee0951f474313f404040c80423e0741 100644
+--- a/net/minecraft/server/level/ServerPlayer.java
++++ b/net/minecraft/server/level/ServerPlayer.java
+@@ -1249,7 +1249,33 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+         if (!keepInventory) {
+             for (ItemStack item : this.getInventory().getContents()) {
+                 if (!item.isEmpty() && !EnchantmentHelper.has(item, net.minecraft.world.item.enchantment.EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
+-                    loot.add(new DefaultDrop(item, stack -> this.drop(stack, true, false, false, null))); // Paper - Restore vanilla drops behavior; drop function taken from Inventory#dropAll (don't fire drop event)
++                    loot.add(new DefaultDrop(item, stack -> {
++                        ItemEntity entity = this.drop(stack, true, false, false, null);
++                        // atDeprecated start - death loot protection
++                        if (entity != null) {
++                            if (this.level().getGameRules().getBoolean(GameRules.RULE_DEATH_ITEMS_OWNER_PICKUP_ONLY)) {
++                                entity.setTarget(this.getUUID());
++                                entity.markAsDeathLoot();
++                            }
++                            if (this.level().getGameRules().getBoolean(GameRules.RULE_DEATH_ITEMS_GLOW)) {
++                                entity.setGlowingTag(true);
++                                entity.markAsDeathLoot();
++                            }
++                            if (this.level().getGameRules().getBoolean(GameRules.RULE_DEATH_ITEMS_INVULNERABLE)) {
++                                entity.setInvulnerable(true);
++                                entity.markAsDeathLoot();
++                            }
++                            if (this.level().getGameRules().getBoolean(GameRules.RULE_DEATH_ITEMS_NO_DESPAWN)) {
++                                entity.setUnlimitedLifetime();
++                                entity.markAsDeathLoot();
++                            }
++                            if (this.level().getGameRules().getBoolean(GameRules.RULE_DEATH_ITEMS_MOB_CANT_PICKUP)) {
++                                entity.canMobPickup = false;
++                                entity.markAsDeathLoot();
++                            }
++                        }
++                        // atDeprecated end
++                    }));
+                 }
+             }
+         }
+diff --git a/net/minecraft/world/entity/item/ItemEntity.java b/net/minecraft/world/entity/item/ItemEntity.java
+index b745eb5d9c68547335247910ff2ae8d5fb36349c..861582875a2efe3923fb94768e5f066c64b133ed 100644
+--- a/net/minecraft/world/entity/item/ItemEntity.java
++++ b/net/minecraft/world/entity/item/ItemEntity.java
+@@ -56,6 +56,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
+     public boolean canMobPickup = true; // Paper - Item#canEntityPickup
+     private int despawnRate = -1; // Paper - Alternative item-despawn-rate
+     public net.kyori.adventure.util.TriState frictionState = net.kyori.adventure.util.TriState.NOT_SET; // Paper - Friction API
++    public boolean isDeathLoot = false; // atDeprecated - mark as player death loot
+ 
+     public ItemEntity(EntityType<? extends ItemEntity> entityType, Level level) {
+         super(entityType, level);
+@@ -149,6 +150,7 @@ public class ItemEntity extends Entity implements TraceableEntity {
+             // CraftBukkit end
+             this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+         }
++        // atDeprecated end
+     }
+     // Paper end - EAR 2
+ 
+@@ -233,6 +235,11 @@ public class ItemEntity extends Entity implements TraceableEntity {
+                 // CraftBukkit end
+                 this.discard(org.bukkit.event.entity.EntityRemoveEvent.Cause.DESPAWN); // CraftBukkit - add Bukkit remove cause
+             }
++            // atDeprecated start - glowing for death loot
++            if (this.isDeathLoot && this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel && serverLevel.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DEATH_ITEMS_GLOW)) {
++                this.setGlowingTag(true);
++            }
++            // atDeprecated end
+         }
+     }
+ 
+@@ -342,6 +349,11 @@ public class ItemEntity extends Entity implements TraceableEntity {
+ 
+     @Override
+     public final boolean hurtServer(ServerLevel level, DamageSource damageSource, float amount) {
++        // atDeprecated start - invulnerable death loot
++        if (this.isDeathLoot && level.getGameRules().getBoolean(GameRules.RULE_DEATH_ITEMS_INVULNERABLE)) {
++            return false;
++        }
++        // atDeprecated end
+         if (this.isInvulnerableToBase(damageSource)) {
+             return false;
+         } else if (!level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) && damageSource.getEntity() instanceof Mob) {
+@@ -386,6 +398,9 @@ public class ItemEntity extends Entity implements TraceableEntity {
+             output.putString("Paper.FrictionState", this.frictionState.toString());
+         }
+         // Paper end - Friction API
++        // atDeprecated start - persist isDeathLoot
++        output.putBoolean("atDeprecatedIsDeathLoot", this.isDeathLoot);
++        // atDeprecated end
+     }
+ 
+     @Override
+@@ -405,6 +420,9 @@ public class ItemEntity extends Entity implements TraceableEntity {
+             }
+         });
+         // Paper end - Friction API
++        // atDeprecated start - read isDeathLoot
++        this.isDeathLoot = input.getBooleanOr("atDeprecatedIsDeathLoot", false);
++        // atDeprecated end
+         if (this.getItem().isEmpty()) {
+             this.discard(null); // CraftBukkit - add Bukkit remove cause
+         }
+@@ -413,6 +431,13 @@ public class ItemEntity extends Entity implements TraceableEntity {
+     @Override
+     public void playerTouch(Player entity) {
+         if (!this.level().isClientSide) {
++            // atDeprecated start - enforce owner-only pickup for death loot
++            if (this.isDeathLoot && this.level() instanceof net.minecraft.server.level.ServerLevel serverLevel && serverLevel.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DEATH_ITEMS_OWNER_PICKUP_ONLY)) {
++                if (this.target != null && !this.target.equals(entity.getUUID())) {
++                    return;
++                }
++            }
++            // atDeprecated end
+             ItemStack item = this.getItem();
+             Item item1 = item.getItem();
+             int count = item.getCount();
+@@ -606,4 +631,8 @@ public class ItemEntity extends Entity implements TraceableEntity {
+     public SlotAccess getSlot(int slot) {
+         return slot == 0 ? SlotAccess.of(this::getItem, this::setItem) : super.getSlot(slot);
+     }
++
++    // atDeprecated start - death loot util
++    public void markAsDeathLoot() { this.isDeathLoot = true; }
++    // atDeprecated end
+ }
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index bb9247c44bc57221f6899e88e3136603b53ea9c9..f8e0927db9fd500671b586589cb3ea72dfa226b2 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -1840,7 +1840,15 @@ public abstract class Player extends LivingEntity {
+ 
+     @Override
+     protected int getBaseExperienceReward(ServerLevel level) {
+-        return !level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) && !this.isSpectator() ? Math.min(this.experienceLevel * 7, 100) : 0;
++        // atDeprecated start - Use deathXpDropPercentage gamerule for XP drop
++        if (!level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY) && !this.isSpectator()) {
++            int percent = level.getGameRules().getInt(GameRules.RULE_DEATH_XP_DROP_PERCENTAGE);
++            if (percent < 0) percent = 0;
++            if (percent > 100) percent = 100;
++            return (int) (this.totalExperience * (percent / 100.0));
++        }
++        return 0;
++        // atDeprecated end
+     }
+ 
+     @Override
+diff --git a/net/minecraft/world/level/GameRules.java b/net/minecraft/world/level/GameRules.java
+index d5536dd40a1e9a2e05967652f690abbbca287852..a6277c587f9e3bdae3b00d2862dea7f4c06253bd 100644
+--- a/net/minecraft/world/level/GameRules.java
++++ b/net/minecraft/world/level/GameRules.java
+@@ -240,6 +240,29 @@ public class GameRules {
+             }
+         }))
+     );
++    // atDeprecated start - deathItems gamerules
++    public static final GameRules.Key<GameRules.BooleanValue> RULE_DEATH_ITEMS_GLOW = register(
++        "deathItemsGlow", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
++    );
++    public static final GameRules.Key<GameRules.BooleanValue> RULE_DEATH_ITEMS_INVULNERABLE = register(
++        "deathItemsInvulnerable", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
++    );
++    public static final GameRules.Key<GameRules.BooleanValue> RULE_DEATH_ITEMS_NO_DESPAWN = register(
++        "deathItemsNoDespawn", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
++    );
++    public static final GameRules.Key<GameRules.BooleanValue> RULE_DEATH_ITEMS_OWNER_PICKUP_ONLY = register(
++        "deathItemsOwnerPickupOnly", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
++    );
++    public static final GameRules.Key<GameRules.BooleanValue> RULE_DEATH_ITEMS_HOPPER_CANT_PICKUP = register(
++        "deathItemsHopperCantPickup", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
++    );
++    public static final GameRules.Key<GameRules.BooleanValue> RULE_DEATH_ITEMS_MOB_CANT_PICKUP = register(
++        "deathItemsMobCantPickup", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
++    );
++    public static final GameRules.Key<GameRules.IntegerValue> RULE_DEATH_XP_DROP_PERCENTAGE = register(
++        "deathXpDropPercentage", GameRules.Category.PLAYER, GameRules.IntegerValue.create(70, 0, 100, FeatureFlagSet.of(), (server, value) -> {})
++    );
++    // atDeprecated end
+     private final Map<GameRules.Key<?>, GameRules.Value<?>> rules;
+     private final FeatureFlagSet enabledFeatures;
+     private final GameRules.Value<?>[] gameruleArray; // Paper - Perf: Use array for gamerule storage
+diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+index 5de769e7bd56bb3355c3c711d46ce5e103ea4409..b3f09cb52767cca16b711663046c452a2082c14a 100644
+--- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -630,6 +630,11 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+     }
+ 
+     public static boolean addItem(Container container, ItemEntity item) {
++        // atDeprecated start - prevent hopper pickup of death loot
++        if (item.isDeathLoot && item.level().getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DEATH_ITEMS_HOPPER_CANT_PICKUP)) {
++            return false;
++        }
++        // atDeprecated end
+         boolean flag = false;
+         // CraftBukkit start
+         if (org.bukkit.event.inventory.InventoryPickupItemEvent.getHandlerList().getRegisteredListeners().length > 0) { // Paper - optimize hoppers

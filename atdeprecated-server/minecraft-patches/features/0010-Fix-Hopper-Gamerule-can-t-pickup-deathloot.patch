@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Mon, 21 Jul 2025 06:47:18 +0700
+Subject: [PATCH] Fix Hopper Gamerule can't pickup deathloot
+
+
+diff --git a/net/minecraft/world/level/block/entity/HopperBlockEntity.java b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+index b3f09cb52767cca16b711663046c452a2082c14a..6b90fe800d9d7a9c0942bcfb505b98b4de227958 100644
+--- a/net/minecraft/world/level/block/entity/HopperBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/HopperBlockEntity.java
+@@ -631,7 +631,7 @@ public class HopperBlockEntity extends RandomizableContainerBlockEntity implemen
+ 
+     public static boolean addItem(Container container, ItemEntity item) {
+         // atDeprecated start - prevent hopper pickup of death loot
+-        if (item.isDeathLoot && item.level().getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DEATH_ITEMS_HOPPER_CANT_PICKUP)) {
++        if (item.isDeathLoot && item.level() instanceof net.minecraft.server.level.ServerLevel serverLevel && serverLevel.getGameRules().getBoolean(net.minecraft.world.level.GameRules.RULE_DEATH_ITEMS_HOPPER_CANT_PICKUP)) {
+             return false;
+         }
+         // atDeprecated end
