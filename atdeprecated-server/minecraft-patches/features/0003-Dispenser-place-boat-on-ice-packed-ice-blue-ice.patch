@@ -4,6 +4,8 @@ Date: Sat, 19 Jul 2025 22:20:58 +0700
 Subject: [PATCH] Dispenser place boat on ice, packed ice, blue ice
 
 
+As part of: MidnightPatch (https://github.com/MidnightTale/MidnightPatch/blob/eda1116de584d17c9d5b79b5151ff18a533595d5/src/main/java/fun/mntale/midnightPatch/module/entity/boat/DispenserBoatListener.java)
+
 diff --git a/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java b/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
 index 702ca443a746d733ef14e927b7377aa3d31ae61d..5f2394111e537d25da6a53d43cad23f1aecc17d2 100644
 --- a/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
