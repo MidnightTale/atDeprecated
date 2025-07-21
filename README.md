@@ -3,6 +3,9 @@
 # atDeprecated
 
 atDeprecated is a fork of [Luminol](https://github.com/LuminolMC/Luminol), which is a fork of [Folia](https://github.com/PaperMC/Folia).
+> [!CAUTION]
+> This is an **experimental fork**. Features may be unstable, incomplete, or break unexpectedly.  
+> **Use at your own risk. Not recommended for production servers.**
 
 ## How to Build
 
