@@ -109,7 +109,7 @@ index 7dc3f46c82dcdfa30438bc4016fb9fc068680341..75c248892b0ff7b49a623612c0bd546c
 +            for (Entry<WaypointTransmitter, WaypointTransmitter.Connection> entry : ImmutableSet.copyOf(map.entrySet())) {
 +                this.updateConnection(player, entry.getKey(), entry.getValue());
 +            }
-+            for (WaypointTransmitter waypointTransmitter : set) {
++            for (WaypointTransmitter waypointTransmitter : ImmutableSet.copyOf(set)) {
 +                this.createConnection(player, waypointTransmitter);
 +            }
 +        }
