@@ -3,7 +3,6 @@ From: MidnightTale <midnighttale24@gmail.com>
 Date: Mon, 21 Jul 2025 17:02:07 +0700
 Subject: [PATCH] Native Void Descend Gamerule
 
-
 As part of: Descend (https://github.com/MidnightTale/Descend/blob/26dc4dca932e7315fca5fed22ae4aa01ae765803/src/main/java/fun/mntale/descend/Descend.java)
 
 diff --git a/net/minecraft/world/entity/LivingEntity.java b/net/minecraft/world/entity/LivingEntity.java
