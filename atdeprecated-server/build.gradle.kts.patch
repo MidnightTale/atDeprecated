@@ -1,6 +1,6 @@
 --- a/luminol-server/build.gradle.kts
 +++ b/luminol-server/build.gradle.kts
-@@ -52,7 +_,23 @@
+@@ -52,7 +52,23 @@ paperweight {
          }
      }
  
@@ -25,7 +25,7 @@
  
  
      spigot {
-@@ -142,12 +_,16 @@
+@@ -142,12 +158,16 @@ sourceSets {
          resources { srcDir("../paper-server/src/main/resources") }
          java { srcDir("../folia-server/src/main/java") }
          resources { srcDir("../folia-server/src/main/resources") }
@@ -42,7 +42,7 @@
      }
  }
  val log4jPlugins = sourceSets.create("log4jPlugins") {
-@@ -174,7 +_,7 @@
+@@ -174,7 +194,7 @@ abstract class MockitoAgentProvider : CommandLineArgumentProvider {
  }
  
  dependencies {
@@ -51,7 +51,7 @@
      // Luminol start - Dependenices insert
      implementation("com.electronwill.night-config:toml:3.8.2") // Night config
      implementation("com.github.luben:zstd-jni:1.5.4-1")
-@@ -261,14 +_,14 @@
+@@ -277,14 +297,14 @@ tasks.jar {
          val gitBranch = git.exec(providers, "rev-parse", "--abbrev-ref", "HEAD").get().trim()
          attributes(
              "Main-Class" to "org.bukkit.craftbukkit.Main",
@@ -62,15 +62,16 @@
 -            "Specification-Title" to "Luminol",
 +            "Specification-Title" to "atDeprecated",
              "Specification-Version" to project.version,
-             "Specification-Vendor" to "LuminolMC org",
+-            "Specification-Vendor" to "LuminolMC org",
 -            "Brand-Id" to "luminolmc:luminol",
 -            "Brand-Name" to "Luminol",
++            "Specification-Vendor" to "MidnightTale",
 +            "Brand-Id" to "mntale:atdeprecated",
 +            "Brand-Name" to "atDeprecated",
              "Build-Number" to (build ?: ""),
              "Build-Time" to buildTime.toString(),
              "Git-Branch" to gitBranch,
-@@ -432,7 +_,7 @@
+@@ -448,7 +468,7 @@ tasks.registerRunTask("runReobfPaperclip") {
  }
  
  fill {
