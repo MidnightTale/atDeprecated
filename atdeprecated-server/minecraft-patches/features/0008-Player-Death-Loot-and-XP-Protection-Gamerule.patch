@@ -29,8 +29,8 @@ index 06e41bca6b964ca71ea7bca547b03cdb3610ba31..1e13ff78aee0951f474313f404040c80
 +                                entity.setInvulnerable(true);
 +                                entity.markAsDeathLoot();
 +                            }
-+                            if (this.level().getGameRules().getBoolean(GameRules.RULE_DEATH_ITEMS_NO_DESPAWN)) {
-+                                entity.setUnlimitedLifetime();
++                            if (this.level().getGameRules().getBoolean(GameRules.RULE_1DAY_RESPAWN_GAMERULE)) {
++                                entity.age = -1728000;
 +                                entity.markAsDeathLoot();
 +                            }
 +                            if (this.level().getGameRules().getBoolean(GameRules.RULE_DEATH_ITEMS_MOB_CANT_PICKUP)) {
@@ -166,8 +166,8 @@ index d5536dd40a1e9a2e05967652f690abbbca287852..a6277c587f9e3bdae3b00d2862dea7f4
 +    public static final GameRules.Key<GameRules.BooleanValue> RULE_DEATH_ITEMS_INVULNERABLE = register(
 +        "deathItemsInvulnerable", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
 +    );
-+    public static final GameRules.Key<GameRules.BooleanValue> RULE_DEATH_ITEMS_NO_DESPAWN = register(
-+        "deathItemsNoDespawn", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
++    public static final GameRules.Key<GameRules.BooleanValue> RULE_1DAY_RESPAWN_GAMERULE = register(
++        "1dayrespawngamerule", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
 +    );
 +    public static final GameRules.Key<GameRules.BooleanValue> RULE_DEATH_ITEMS_OWNER_PICKUP_ONLY = register(
 +        "deathItemsOwnerPickupOnly", GameRules.Category.PLAYER, GameRules.BooleanValue.create(true)
