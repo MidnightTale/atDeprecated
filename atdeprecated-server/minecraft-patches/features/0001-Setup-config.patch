@@ -1,0 +1,30 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Thu, 24 Jul 2025 03:31:14 +0700
+Subject: [PATCH] Setup config
+
+
+diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
+index cf72cb8b418239b56c755486b03a321672e16bc3..d9178fe7a52f7b98c82a03533e4c942e37616270 100644
+--- a/net/minecraft/server/Main.java
++++ b/net/minecraft/server/Main.java
+@@ -109,6 +109,7 @@ public class Main {
+                 JvmProfiler.INSTANCE.start(Environment.SERVER);
+             }
+ 
++            fun.mntale.atdeprecated.config.Config.init(); // // atDeprecated - atDeprecated config
+             me.earthme.luminol.config.ConfigManager.initConfigs(); // Luminol - Luminol config
+             io.papermc.paper.plugin.PluginInitializerManager.load(optionSet); // Paper
+             Bootstrap.bootStrap();
+diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
+index c6c6432c2efeb7b95c2894b188cd966321ae3186..270cf5a1fce8eda5cd11e221b0026cd7d719a741 100644
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -171,6 +171,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         this.paperConfigurations.initializeGlobalConfiguration(this.registryAccess());
+         this.paperConfigurations.initializeWorldDefaultsConfiguration(this.registryAccess());
+         // Paper end - initialize global and world-defaults configuration
++        fun.mntale.atdeprecated.config.Config.load(); // atDeprecated - load config file
+         me.earthme.luminol.config.ConfigManager.loadConfigFiles(); // Luminol - load config file
+         if (false) this.server.spark.enableEarlyIfRequested(); // Paper - spark // Luminol - Force disable builtin spark
+         // Paper start - fix converting txt to json file; convert old users earlier after PlayerList creation but before file load/save
