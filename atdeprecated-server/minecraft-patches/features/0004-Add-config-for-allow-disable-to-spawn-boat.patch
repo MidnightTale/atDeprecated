@@ -1,0 +1,64 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Thu, 24 Jul 2025 05:39:48 +0700
+Subject: [PATCH] Add config for allow disable to spawn boat
+
+
+diff --git a/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java b/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
+index 702ca443a746d733ef14e927b7377aa3d31ae61d..b717b74895abd99c7974f92a445fd5d8dbd1debd 100644
+--- a/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
++++ b/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
+@@ -30,14 +30,29 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
+         double d3 = vec3.z() + direction.getStepZ() * d;
+         BlockPos blockPos = blockSource.pos().relative(direction);
+         double d4;
++        Vec3 spawnLoc;
+         if (serverLevel.getFluidState(blockPos).is(FluidTags.WATER)) {
+             d4 = 1.0;
++            spawnLoc = new Vec3(d1, d2 + d4, d3);
++        } else if (fun.mntale.atdeprecated.config.AtCoreConfig.DISPENSER_CONFIG.placeBoatOnIce && (direction == Direction.UP || serverLevel.isEmptyBlock(blockPos))) {
++            BlockPos targetPos = (direction == Direction.UP) ? blockPos.above() : blockPos;
++            if (isIceType(serverLevel, targetPos.below())) {
++                spawnLoc = Vec3.atCenterOf(targetPos.below()).add(0, 0.6, 0);
++            } else if (direction == Direction.UP && isIceType(serverLevel, targetPos)) {
++                spawnLoc = Vec3.atCenterOf(targetPos).add(0, 1.1, 0);
++            } else {
++                if (!serverLevel.getBlockState(blockPos).isAir() || !serverLevel.getFluidState(blockPos.below()).is(FluidTags.WATER)) {
++                    return this.defaultDispenseItemBehavior.dispense(blockSource, item);
++                }
++                d4 = 0.0;
++                spawnLoc = new Vec3(d1, d2 + d4, d3);
++            }
+         } else {
+             if (!serverLevel.getBlockState(blockPos).isAir() || !serverLevel.getFluidState(blockPos.below()).is(FluidTags.WATER)) {
+                 return this.defaultDispenseItemBehavior.dispense(blockSource, item);
+             }
+-
+             d4 = 0.0;
++            spawnLoc = new Vec3(d1, d2 + d4, d3);
+         }
+ 
+         // CraftBukkit start
+@@ -45,7 +60,7 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
+         org.bukkit.block.Block block = org.bukkit.craftbukkit.block.CraftBlock.at(serverLevel, blockSource.pos());
+         org.bukkit.craftbukkit.inventory.CraftItemStack craftItem = org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(singleItemStack);
+ 
+-        org.bukkit.event.block.BlockDispenseEvent event = new org.bukkit.event.block.BlockDispenseEvent(block, craftItem.clone(), new org.bukkit.util.Vector(d1, d2 + d4, d3));
++        org.bukkit.event.block.BlockDispenseEvent event = new org.bukkit.event.block.BlockDispenseEvent(block, craftItem.clone(), new org.bukkit.util.Vector(spawnLoc.x(), spawnLoc.y(), spawnLoc.z()));
+         serverLevel.getCraftServer().getPluginManager().callEvent(event);
+ 
+         if (event.isCancelled()) {
+@@ -75,6 +90,13 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
+         return item;
+     }
+ 
++    private static boolean isIceType(ServerLevel level, BlockPos pos) {
++        var block = level.getBlockState(pos).getBlock();
++        return block == net.minecraft.world.level.block.Blocks.ICE ||
++               block == net.minecraft.world.level.block.Blocks.PACKED_ICE ||
++               block == net.minecraft.world.level.block.Blocks.BLUE_ICE;
++    }
++
+     @Override
+     protected void playSound(BlockSource blockSource) {
+         blockSource.level().levelEvent(1000, blockSource.pos(), 0);
