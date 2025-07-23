@@ -5,7 +5,7 @@ Subject: [PATCH] Setup config
 
 
 diff --git a/net/minecraft/server/Main.java b/net/minecraft/server/Main.java
-index cf72cb8b418239b56c755486b03a321672e16bc3..d9178fe7a52f7b98c82a03533e4c942e37616270 100644
+index cf72cb8b418239b56c755486b03a321672e16bc3..e146c05d7854420b39272e5d010d9db8e24f7b05 100644
 --- a/net/minecraft/server/Main.java
 +++ b/net/minecraft/server/Main.java
 @@ -109,6 +109,7 @@ public class Main {
@@ -17,7 +17,7 @@ index cf72cb8b418239b56c755486b03a321672e16bc3..d9178fe7a52f7b98c82a03533e4c942e
              io.papermc.paper.plugin.PluginInitializerManager.load(optionSet); // Paper
              Bootstrap.bootStrap();
 diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
-index c6c6432c2efeb7b95c2894b188cd966321ae3186..270cf5a1fce8eda5cd11e221b0026cd7d719a741 100644
+index c6c6432c2efeb7b95c2894b188cd966321ae3186..f316bcd8dab860961a964c31512f9eb43f286ebd 100644
 --- a/net/minecraft/server/dedicated/DedicatedServer.java
 +++ b/net/minecraft/server/dedicated/DedicatedServer.java
 @@ -171,6 +171,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
