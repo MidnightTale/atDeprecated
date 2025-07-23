@@ -1,0 +1,19 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Thu, 24 Jul 2025 04:54:04 +0700
+Subject: [PATCH] Add config for disable check elytra boost break leash
+
+
+diff --git a/net/minecraft/world/item/FireworkRocketItem.java b/net/minecraft/world/item/FireworkRocketItem.java
+index f86b0579e707ecfa5c2074ea22bbe383b5e11841..d7ddbf5a22bb3e5af9471b6052fa1ab9e9182e60 100644
+--- a/net/minecraft/world/item/FireworkRocketItem.java
++++ b/net/minecraft/world/item/FireworkRocketItem.java
+@@ -69,7 +69,7 @@ public class FireworkRocketItem extends Item implements ProjectileItem {
+                 com.destroystokyo.paper.event.player.PlayerElytraBoostEvent event = new com.destroystokyo.paper.event.player.PlayerElytraBoostEvent((org.bukkit.entity.Player) player.getBukkitEntity(), org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(itemInHand), (org.bukkit.entity.Firework) delayed.projectile().getBukkitEntity(), org.bukkit.craftbukkit.CraftEquipmentSlot.getHand(hand));
+                 if (event.callEvent() && delayed.attemptSpawn()) {
+                     player.awardStat(Stats.ITEM_USED.get(this)); // Moved up from below
+-                    if (player.dropAllLeashConnections(null)) {
++                    if (!fun.mntale.atdeprecated.config.AtCoreConfig.ELYTRA_CONFIG.removeLeashBreakCheck && player.dropAllLeashConnections(null)) {
+                         level.playSound(null, player, SoundEvents.LEAD_BREAK, SoundSource.NEUTRAL, 1.0F, 1.0F);
+                     }
+                     if (event.shouldConsume() && !player.hasInfiniteMaterials()) {
