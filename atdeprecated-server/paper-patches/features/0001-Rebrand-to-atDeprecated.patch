@@ -53,6 +53,20 @@ index 22125dbe1765f930fe10fe420be1c275ec553139..db659ccbacdf4664870c912df97b2315
          }
          final @Nullable Component history = this.getHistory();
  
+diff --git a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+index 9699d7dcca5cf67f50ad05c0e875de424a4e00c5..58c0f85972ac159a91a2a03c610c56d04db3c0a0 100644
+--- a/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
++++ b/src/main/java/org/bukkit/craftbukkit/util/Versioning.java
+@@ -11,7 +11,7 @@ public final class Versioning {
+     public static String getBukkitVersion() {
+         String result = "Unknown-Version";
+ 
+-        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/me.earthme.luminol/luminol-api/pom.properties"); // Folia //Luminol
++        InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/fun.mntale.atdeprecated/atdeprecated-api/pom.properties"); // Folia //Luminol // atDeprecated
+         Properties properties = new Properties();
+ 
+         if (stream != null) {
+ 
 diff --git a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java b/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java
 index 4ada790812957657d580cb748077c4961987d0cb..83bfd4f5e94ebd00a5a392332ded6d065a707a6c 100644
 --- a/src/main/java/io/papermc/paper/ServerBuildInfoImpl.java

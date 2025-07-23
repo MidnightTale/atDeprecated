@@ -24,7 +24,7 @@ index db5e2f10278c20286779362cfdfadb2f42c724e0..1aa001e2c9d3043498ba54e9795c14d9
 -    // Luminol end
 -
 +    /**
-+     * The brand id for Luminol.
++     * The brand id for atDeprecated.
 +     */
 +    Key BRAND_ATDEPRECATED_ID = Key.key("mntale", "atdeprecated");
 +    // Luminol end // atDeprecated end
