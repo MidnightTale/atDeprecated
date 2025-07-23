@@ -1,23 +1,22 @@
 package fun.mntale.atdeprecated.config.modules.removed;
 
-import fun.mntale.atdeprecated.config.Module;
-import fun.mntale.atdeprecated.config.RemovedSetting;
-import fun.mntale.atdeprecated.config.Setting;
+import fun.mntale.atdeprecated.config.EnumConfigCategory;
+import fun.mntale.atdeprecated.config.IConfigModule;
 
-import java.util.Collections;
-import java.util.List;
+import fun.mntale.atdeprecated.config.annotations.RemovedEntry;
 
-public class RemovedConfig implements Module {
+public class RemovedConfig implements IConfigModule {
 
-    public final Setting<?> removed = new RemovedSetting("cat", "test");
+    @RemovedEntry(category = {"cat"}, name = "test")
+    public boolean removed;
 
     @Override
-    public String getName() {
-        return "removed_config";
+    public EnumConfigCategory getCategory() {
+        return EnumConfigCategory.REMOVED;
     }
 
     @Override
-    public List<Setting<?>> getSettings() {
-        return Collections.singletonList(removed);
+    public String getBaseName() {
+        return "removed_config";
     }
 }

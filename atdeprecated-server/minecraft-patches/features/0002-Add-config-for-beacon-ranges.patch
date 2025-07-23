@@ -1,0 +1,36 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Thu, 24 Jul 2025 04:10:47 +0700
+Subject: [PATCH] Add config for beacon ranges
+
+
+diff --git a/net/minecraft/world/level/block/entity/BeaconBlockEntity.java b/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
+index b27a40e69046414d5302882b72ac8b3f848e18df..2a6d1801eed11ae39eb062bb9557213cb25dcd4d 100644
+--- a/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
++++ b/net/minecraft/world/level/block/entity/BeaconBlockEntity.java
+@@ -143,7 +143,11 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider, Name
+ 
+     public double getEffectRange() {
+         if (this.effectRange < 0) {
+-            return this.levels * 10 + 10;
++            List<Integer> ranges = fun.mntale.atdeprecated.config.AtCoreConfig.BEACON_CONFIG.getParsedRanges();
++            if (this.levels > 0 && this.levels <= ranges.size()) {
++                return ranges.get(this.levels - 1);
++            }
++            return 0;
+         } else {
+             return effectRange;
+         }
+@@ -338,7 +342,11 @@ public class BeaconBlockEntity extends BlockEntity implements MenuProvider, Name
+     }
+ 
+     private static double computeBeaconRange(final int beaconLevel) {
+-        return beaconLevel * 10 + 10; // Diff from applyEffects
++        List<Integer> ranges = fun.mntale.atdeprecated.config.AtCoreConfig.BEACON_CONFIG.getParsedRanges();
++        if (beaconLevel > 0 && beaconLevel <= ranges.size()) {
++            return ranges.get(beaconLevel - 1);
++        }
++        return 0;
+     }
+ 
+     public static List<Player> getHumansInRange(final Level level, final BlockPos pos, final int beaconLevel, final @Nullable BeaconBlockEntity blockEntity) {
