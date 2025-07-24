@@ -1,4 +1,4 @@
-package fun.mntale.atdeprecated.config.modules.features;
+package fun.mntale.atdeprecated.config.modules.fixes;
 
 import fun.mntale.atdeprecated.config.EnumConfigCategory;
 import fun.mntale.atdeprecated.config.IConfigModule;
@@ -11,7 +11,7 @@ public class ElytraConfig implements IConfigModule {
 
     @Override
     public EnumConfigCategory getCategory() {
-        return EnumConfigCategory.FEATURES;
+        return EnumConfigCategory.FIXES;
     }
 
     @Override

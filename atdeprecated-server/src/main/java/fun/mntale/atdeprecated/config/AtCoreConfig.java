@@ -1,12 +1,8 @@
 package fun.mntale.atdeprecated.config;
 
-import fun.mntale.atdeprecated.config.modules.features.AnvilConfig;
-import fun.mntale.atdeprecated.config.modules.features.BeaconConfig;
-import fun.mntale.atdeprecated.config.modules.experiment.WaypointConfig;
-import fun.mntale.atdeprecated.config.modules.features.DispenserConfig;
-import fun.mntale.atdeprecated.config.modules.features.ElytraConfig;
-import fun.mntale.atdeprecated.config.modules.features.InventoryConfig;
-import fun.mntale.atdeprecated.config.modules.features.PlayerConfig;
+import fun.mntale.atdeprecated.config.modules.features.*;
+import fun.mntale.atdeprecated.config.modules.fixes.*;
+import fun.mntale.atdeprecated.config.modules.experiment.*;
 import fun.mntale.atdeprecated.config.modules.removed.RemovedConfig;
 import java.io.File;
 
@@ -16,6 +12,7 @@ public class AtCoreConfig {
     public static final AnvilConfig ANVIL_CONFIG = new AnvilConfig();
     public static final BeaconConfig BEACON_CONFIG = new BeaconConfig();
     public static final DispenserConfig DISPENSER_CONFIG = new DispenserConfig();
+    public static final DeathLootConfig DEATH_LOOT_CONFIG = new DeathLootConfig();
     public static final ElytraConfig ELYTRA_CONFIG = new ElytraConfig();
     public static final PlayerConfig PLAYER_CONFIG = new PlayerConfig();
     public static final InventoryConfig INVENTORY_CONFIG = new InventoryConfig();
@@ -35,6 +32,7 @@ public class AtCoreConfig {
         configManager.registerModule(ANVIL_CONFIG);
         configManager.registerModule(BEACON_CONFIG);
         configManager.registerModule(DISPENSER_CONFIG);
+        configManager.registerModule(DEATH_LOOT_CONFIG);
         configManager.registerModule(ELYTRA_CONFIG);
         configManager.registerModule(PLAYER_CONFIG);
         configManager.registerModule(INVENTORY_CONFIG);
