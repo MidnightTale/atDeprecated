@@ -1,0 +1,162 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Thu, 24 Jul 2025 23:04:37 +0700
+Subject: [PATCH] Lophine: Add config to enable Raytracing tracker
+
+Co-authored by: MrHua269 <wangxyper@163.com>
+As part of: Purpur (https://github.com/LuminolMC/Lophine/blob/904abaa56499a869259d3e6b3e586c1d33e34d28/lophine-server/minecraft-patches/features/0006-Add-config-to-enable-Raytracing-tracker.patch)
+Licensed under: MIT (https://github.com/LuminolMC/Lophine/blob/904abaa56499a869259d3e6b3e586c1d33e34d28/LICENSE.md)
+
+diff --git a/net/minecraft/server/level/ChunkMap.java b/net/minecraft/server/level/ChunkMap.java
+index 6868b915bf3deb85783a638d4441a15fea6da2dc..d6b5a6fe6c314edf4faba34af0f42908a8709a00 100644
+--- a/net/minecraft/server/level/ChunkMap.java
++++ b/net/minecraft/server/level/ChunkMap.java
+@@ -1278,7 +1278,7 @@ public class ChunkMap extends ChunkStorage implements ChunkHolder.PlayerProvider
+                 double d1 = vec3_dx * vec3_dx + vec3_dz * vec3_dz; // Paper
+                 double d2 = d * d;
+                 // Paper start - Configurable entity tracking range by Y
+-                boolean flag = d1 <= d2;
++                boolean flag = d1 <= d2 && !entity.isCulled(); // Luminol - Ray tracing entity tracker // atDeprecated - Ray tracing entity tracker
+                 if (flag && level.paperConfig().entities.trackingRangeY.enabled) {
+                     double rangeY = level.paperConfig().entities.trackingRangeY.get(this.entity, -1);
+                     if (rangeY != -1) {
+diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
+index dc3d29b7d1590ba366755fef51e4254d901d0da8..90084f1d999adc805e009096d3ca785b22fe8318 100644
+--- a/net/minecraft/world/entity/Entity.java
++++ b/net/minecraft/world/entity/Entity.java
+@@ -147,7 +147,7 @@ import net.minecraft.world.waypoints.WaypointTransmitter;
+ import org.jetbrains.annotations.Contract;
+ import org.slf4j.Logger;
+ 
+-public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess, ScoreHolder, DataComponentGetter, ca.spottedleaf.moonrise.patches.chunk_system.entity.ChunkSystemEntity, ca.spottedleaf.moonrise.patches.entity_tracker.EntityTrackerEntity { // Paper - rewrite chunk system // Paper - optimise entity tracker
++public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess, ScoreHolder, DataComponentGetter, ca.spottedleaf.moonrise.patches.chunk_system.entity.ChunkSystemEntity, ca.spottedleaf.moonrise.patches.entity_tracker.EntityTrackerEntity, dev.tr7zw.entityculling.versionless.access.Cullable { // Paper - rewrite chunk system // Paper - optimise entity tracker // Luminol - Ray tracing entity tracker // atDeprecated - Ray tracing entity tracker
+     // CraftBukkit start
+     private static final int CURRENT_LEVEL = 2;
+     public boolean preserveMotion = true; // Paper - Fix Entity Teleportation and cancel velocity if teleported; keep initial motion on first snapTo
+@@ -6352,4 +6352,47 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+     // Paper end - Expose entity id counter
+ 
+     public boolean shouldTickHot() { return this.tickCount > 20 * 10 && this.isAlive(); } // KioCG
++
++    // Luminol - Ray tracing entity tracker // atDeprecated - Ray tracing entity tracker
++    private long lasttime = 0;
++    private boolean culled = false;
++    private boolean outOfCamera = false;
++
++    @Override
++    public void setTimeout() {
++        this.lasttime = System.currentTimeMillis() + 1000;
++    }
++
++    @Override
++    public boolean isForcedVisible() {
++        return this.lasttime > System.currentTimeMillis();
++    }
++
++    @Override
++    public void setCulled(boolean value) {
++        this.culled = value;
++        if (!value) {
++            setTimeout();
++        }
++    }
++
++    @Override
++    public boolean isCulled() {
++        if (!fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.enabled)
++            return false;
++        return this.culled;
++    }
++
++    @Override
++    public void setOutOfCamera(boolean value) {
++        this.outOfCamera = value;
++    }
++
++    @Override
++    public boolean isOutOfCamera() {
++        if (!fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.enabled)
++            return false;
++        return this.outOfCamera;
++    }
++    // atDeprecated end
+ }
+diff --git a/net/minecraft/world/entity/EntityType.java b/net/minecraft/world/entity/EntityType.java
+index 6f00ffa05d9597917574357e0069c9b056aa5ce2..af0a8b99188f25adb0a76e227d3debc189293690 100644
+--- a/net/minecraft/world/entity/EntityType.java
++++ b/net/minecraft/world/entity/EntityType.java
+@@ -1119,6 +1119,9 @@ public class EntityType<T extends Entity> implements FeatureElement, EntityTypeT
+     public final int passengerTickTimerId;
+     public final int passengerInactiveTickTimerId;
+     // Folia end - profiler
++    // Luminol - Raytracing entity tracker // atDeprecated - Raytracing entity tracker
++    public boolean skipRaytracningCheck = false;
++    // Luminol end // atDeprecated - Raytracing entity tracker
+ 
+     public EntityType(
+         EntityType.EntityFactory<T> factory,
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index b9b14cd9f0ff5556e076aab21f4c2b85d1e48ee5..4480b491250f08350f479c27d17d51fe62bc60f6 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -230,6 +230,25 @@ public abstract class Player extends LivingEntity {
+         return (org.bukkit.craftbukkit.entity.CraftHumanEntity) super.getBukkitEntity();
+     }
+     // CraftBukkit end
++    // Luminol start - Raytracing entity tracker // atDeprecated - Raytracing entity tracker
++    public dev.tr7zw.entityculling.CullTask cullTask;
++    {
++        if (!fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.enabled) {
++            this.cullTask = null;
++        }else {
++            final com.logisticscraft.occlusionculling.OcclusionCullingInstance culling = new com.logisticscraft.occlusionculling.OcclusionCullingInstance(
++                    fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.tracingDistance,
++                    new dev.tr7zw.entityculling.DefaultChunkDataProvider(this.level())
++            );
++
++            this.cullTask = new dev.tr7zw.entityculling.CullTask(
++                    culling, this,
++                    fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.hitboxLimit,
++                    fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.checkIntervalMs
++            );
++        }
++    }
++    // Luminol end // atDeprecated - Raytracing entity tracker
+ 
+     public Player(Level level, GameProfile gameProfile) {
+         super(EntityType.PLAYER, level);
+@@ -288,6 +307,26 @@ public abstract class Player extends LivingEntity {
+ 
+     @Override
+     public void tick() {
++        // Luminol start - Ray tracing entity tracker // atDeprecated - Ray tracing entity tracker
++        if (!fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.enabled) {
++            if (this.cullTask != null) this.cullTask.signalStop();
++            this.cullTask = null;
++        }else {
++            final com.logisticscraft.occlusionculling.OcclusionCullingInstance culling = new com.logisticscraft.occlusionculling.OcclusionCullingInstance(
++                    fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.tracingDistance,
++                    new dev.tr7zw.entityculling.DefaultChunkDataProvider(this.level())
++            );
++
++            this.cullTask = new dev.tr7zw.entityculling.CullTask(
++                    culling, this,
++                    fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.hitboxLimit,
++                    fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.checkIntervalMs
++            );
++        }
++        if (this.cullTask != null) this.cullTask.setup();
++        if (this.cullTask != null) this.cullTask.requestCullSignal(); // Luminol - Ray tracing entity tracker // atDeprecated - Ray tracing entity tracker
++        // Luminol end // atDeprecated - Ray tracing entity tracker
++
+         this.noPhysics = this.isSpectator();
+         if (this.isSpectator() || this.isPassenger()) {
+             this.setOnGround(false);
+@@ -574,6 +613,7 @@ public abstract class Player extends LivingEntity {
+     }
+ 
+     protected void doCloseContainer() {
++        if (this.cullTask != null) this.cullTask.signalStop(); // Luminol - Ray tracing entity tracker // atDeprecated - Ray tracing entity tracker
+     }
+ 
+     @Override

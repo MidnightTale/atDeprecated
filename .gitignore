@@ -9,11 +9,13 @@ build
 
 /atdeprecated-server/build.gradle.kts
 /atdeprecated-server/src/minecraft
-atDeprecated-api/build
+/atdeprecated-server/build
+/atdeprecated-server/.gradle
+/atdeprecated-api/build
+/atdeprecated-api/build.gradle.kts
 /paper-server
 /folia-server
 /luminol-server
-/atDeprecated-api/build.gradle.kts
 /paper-api
 /paper-api-generator
 /folia-api

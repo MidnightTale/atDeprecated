@@ -1,0 +1,86 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Thu, 24 Jul 2025 22:27:33 +0700
+Subject: [PATCH] Optimize chicken
+
+
+diff --git a/net/minecraft/world/entity/animal/Chicken.java b/net/minecraft/world/entity/animal/Chicken.java
+index da408c313d898413dee928e9c80501ddf56d75e8..b096a8c71da5b18a8a7a240aba2b43934c1fc7f4 100644
+--- a/net/minecraft/world/entity/animal/Chicken.java
++++ b/net/minecraft/world/entity/animal/Chicken.java
+@@ -68,20 +68,27 @@ public class Chicken extends Animal {
+ 
+     public Chicken(EntityType<? extends Chicken> entityType, Level level) {
+         super(entityType, level);
+-        this.eggTime = this.random.nextInt(6000) + 6000;
++        this.eggTime = this.random.nextInt(fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.chickenEggLayInterval) + fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.chickenEggLayInterval; // atDeprecated
+         this.setPathfindingMalus(PathType.WATER, 0.0F);
+     }
+ 
+     @Override
+     protected void registerGoals() {
+         this.goalSelector.addGoal(0, new FloatGoal(this));
+-        this.goalSelector.addGoal(1, new PanicGoal(this, 1.4));
++        // atDeprecated start
++        if (!fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.optimizeChickenBehavior) {
++            this.goalSelector.addGoal(1, new PanicGoal(this, 1.4));
++        }
+         this.goalSelector.addGoal(2, new BreedGoal(this, 1.0));
+         this.goalSelector.addGoal(3, new TemptGoal(this, 1.0, itemStack -> itemStack.is(ItemTags.CHICKEN_FOOD), false));
+-        this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.1));
+-        this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0));
+-        this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
++        if (!fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.optimizeChickenBehavior) {
++            this.goalSelector.addGoal(4, new FollowParentGoal(this, 1.1));
++            this.goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 1.0));
++            this.goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 6.0F));
++        }
++        
+         this.goalSelector.addGoal(7, new RandomLookAroundGoal(this));
++        // atDeprecated end
+     }
+ 
+     @Override
+@@ -111,16 +118,34 @@ public class Chicken extends Animal {
+         }
+ 
+         this.flap = this.flap + this.flapping * 2.0F;
+-        if (this.level() instanceof ServerLevel serverLevel && this.isAlive() && !this.isBaby() && !this.isChickenJockey() && --this.eggTime <= 0) {
+-            this.forceDrops = true; // CraftBukkit
+-            if (this.dropFromGiftLootTable(serverLevel, BuiltInLootTables.CHICKEN_LAY, this::spawnAtLocation)) {
+-                this.playSound(SoundEvents.CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
+-                this.gameEvent(GameEvent.ENTITY_PLACE);
++        // atDeprecated start
++        if (fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.enableChickenEggLaying && this.level() instanceof ServerLevel serverLevel && this.isAlive() && !this.isBaby() && !this.isChickenJockey()) {
++            int checkInterval = fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.chickenEggLayCheckInterval;
++            if (checkInterval > 0) {
++                if ((this.tickCount + this.getId()) % checkInterval == 0) {
++                    if ((this.eggTime -= checkInterval) <= 0) {
++                        this.forceDrops = true;
++                        if (this.dropFromGiftLootTable(serverLevel, BuiltInLootTables.CHICKEN_LAY, this::spawnAtLocation)) {
++                            this.playSound(SoundEvents.CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
++                            this.gameEvent(GameEvent.ENTITY_PLACE);
++                        }
++                        this.forceDrops = false;
++                        this.eggTime = this.random.nextInt(fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.chickenEggLayInterval) + fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.chickenEggLayInterval;
++                    }
++                }
++            } else {
++                if (--this.eggTime <= 0) {
++                    this.forceDrops = true;
++                    if (this.dropFromGiftLootTable(serverLevel, BuiltInLootTables.CHICKEN_LAY, this::spawnAtLocation)) {
++                        this.playSound(SoundEvents.CHICKEN_EGG, 1.0F, (this.random.nextFloat() - this.random.nextFloat()) * 0.2F + 1.0F);
++                        this.gameEvent(GameEvent.ENTITY_PLACE);
++                    }
++                    this.forceDrops = false;
++                    this.eggTime = this.random.nextInt(fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.chickenEggLayInterval) + fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.chickenEggLayInterval;
++                }
+             }
+-            this.forceDrops = false; // CraftBukkit
+-
+-            this.eggTime = this.random.nextInt(6000) + 6000;
+         }
++        // atDeprecated end
+     }
+ 
+     @Override

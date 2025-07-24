@@ -3,6 +3,7 @@ package fun.mntale.atdeprecated.config;
 import fun.mntale.atdeprecated.config.modules.features.*;
 import fun.mntale.atdeprecated.config.modules.fixes.*;
 import fun.mntale.atdeprecated.config.modules.experiment.*;
+import fun.mntale.atdeprecated.config.modules.optimizations.EntityConfig;
 import fun.mntale.atdeprecated.config.modules.removed.RemovedConfig;
 import java.io.File;
 
@@ -18,6 +19,8 @@ public class AtCoreConfig {
     public static final InventoryConfig INVENTORY_CONFIG = new InventoryConfig();
     public static final WaypointConfig WAYPOINT_CONFIG = new WaypointConfig();
     public static final RemovedConfig REMOVED_CONFIG = new RemovedConfig();
+    public static final EntityConfig ENTITY_CONFIG = new EntityConfig();
+    public static final RayTrackingEntityTrackerConfig RAY_TRACKING_ENTITY_TRACKER_CONFIG = new RayTrackingEntityTrackerConfig();
 
     public static void init() {
         registerModules();
@@ -38,5 +41,7 @@ public class AtCoreConfig {
         configManager.registerModule(INVENTORY_CONFIG);
         configManager.registerModule(WAYPOINT_CONFIG);
         configManager.registerModule(REMOVED_CONFIG);
+        configManager.registerModule(ENTITY_CONFIG);
+        configManager.registerModule(RAY_TRACKING_ENTITY_TRACKER_CONFIG);
     }
 }
