@@ -1,45 +1,45 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: MidnightTale <midnighttale24@gmail.com>
-Date: Thu, 24 Jul 2025 05:39:48 +0700
+Date: Thu, 24 Jul 2025 06:59:05 +0700
 Subject: [PATCH] Add config for allow disable to spawn boat
 
 
 diff --git a/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java b/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
-index 702ca443a746d733ef14e927b7377aa3d31ae61d..b717b74895abd99c7974f92a445fd5d8dbd1debd 100644
+index 702ca443a746d733ef14e927b7377aa3d31ae61d..3413c31197f6ffac399a846385d23a00a614c22a 100644
 --- a/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
 +++ b/net/minecraft/core/dispenser/BoatDispenseItemBehavior.java
-@@ -30,14 +30,29 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
+@@ -30,22 +30,36 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
          double d3 = vec3.z() + direction.getStepZ() * d;
          BlockPos blockPos = blockSource.pos().relative(direction);
          double d4;
-+        Vec3 spawnLoc;
++        Vec3 spawnLoc = null;
++
++        // atDeprecated start - Add boat placement on ice
          if (serverLevel.getFluidState(blockPos).is(FluidTags.WATER)) {
              d4 = 1.0;
 +            spawnLoc = new Vec3(d1, d2 + d4, d3);
-+        } else if (fun.mntale.atdeprecated.config.AtCoreConfig.DISPENSER_CONFIG.placeBoatOnIce && (direction == Direction.UP || serverLevel.isEmptyBlock(blockPos))) {
-+            BlockPos targetPos = (direction == Direction.UP) ? blockPos.above() : blockPos;
-+            if (isIceType(serverLevel, targetPos.below())) {
-+                spawnLoc = Vec3.atCenterOf(targetPos.below()).add(0, 0.6, 0);
-+            } else if (direction == Direction.UP && isIceType(serverLevel, targetPos)) {
-+                spawnLoc = Vec3.atCenterOf(targetPos).add(0, 1.1, 0);
-+            } else {
-+                if (!serverLevel.getBlockState(blockPos).isAir() || !serverLevel.getFluidState(blockPos.below()).is(FluidTags.WATER)) {
++        } else if (fun.mntale.atdeprecated.config.AtCoreConfig.DISPENSER_CONFIG.placeBoatOnIce) {
++            spawnLoc = this.tryPlaceBoatOnIce(serverLevel, direction, blockPos);
++            if (spawnLoc == null) {
++                if (!serverLevel.getBlockState(blockPos).canBeReplaced() || !serverLevel.getFluidState(blockPos.below()).is(FluidTags.WATER)) { // atDeprecated - Allow non-solid blocks
 +                    return this.defaultDispenseItemBehavior.dispense(blockSource, item);
 +                }
 +                d4 = 0.0;
 +                spawnLoc = new Vec3(d1, d2 + d4, d3);
 +            }
          } else {
-             if (!serverLevel.getBlockState(blockPos).isAir() || !serverLevel.getFluidState(blockPos.below()).is(FluidTags.WATER)) {
+-            if (!serverLevel.getBlockState(blockPos).isAir() || !serverLevel.getFluidState(blockPos.below()).is(FluidTags.WATER)) {
++            if (!serverLevel.getBlockState(blockPos).canBeReplaced() || !serverLevel.getFluidState(blockPos.below()).is(FluidTags.WATER)) { // atDeprecated - Allow non-solid blocks
                  return this.defaultDispenseItemBehavior.dispense(blockSource, item);
              }
 -
              d4 = 0.0;
 +            spawnLoc = new Vec3(d1, d2 + d4, d3);
          }
++        // atDeprecated end
  
          // CraftBukkit start
-@@ -45,7 +60,7 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
+         ItemStack singleItemStack = item.copyWithCount(1);
          org.bukkit.block.Block block = org.bukkit.craftbukkit.block.CraftBlock.at(serverLevel, blockSource.pos());
          org.bukkit.craftbukkit.inventory.CraftItemStack craftItem = org.bukkit.craftbukkit.inventory.CraftItemStack.asCraftMirror(singleItemStack);
  
@@ -48,16 +48,53 @@ index 702ca443a746d733ef14e927b7377aa3d31ae61d..b717b74895abd99c7974f92a445fd5d8
          serverLevel.getCraftServer().getPluginManager().callEvent(event);
  
          if (event.isCancelled()) {
-@@ -75,6 +90,13 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
+@@ -75,6 +89,50 @@ public class BoatDispenseItemBehavior extends DefaultDispenseItemBehavior {
          return item;
      }
  
++    // atDeprecated start - Add boat placement on ice
++    private Vec3 tryPlaceBoatOnIce(ServerLevel serverLevel, Direction direction, BlockPos blockPos) {
++        BlockPos current = blockPos;
++        if (direction == Direction.UP) {
++            int airCount = 0;
++            int maxAir = 2;
++            for (int i = 0; i < 4; i++) {
++                if (airCount < maxAir && serverLevel.getBlockState(current).canBeReplaced()) { // atDeprecated - Allow non-solid blocks
++                    airCount++;
++                    current = current.above();
++                    continue;
++                }
++                if (isIceType(serverLevel, current)) {
++                    BlockPos aboveIce = current.above();
++                    if (serverLevel.getBlockState(aboveIce).canBeReplaced()) { // atDeprecated - Allow non-solid blocks
++                        return Vec3.atCenterOf(current).add(0, 1.1, 0);
++                    }
++                }
++                break;
++            }
++        } else {
++            for (int i = 0; i < 2; i++) {
++                if (serverLevel.getBlockState(current).canBeReplaced()) { // atDeprecated - Allow non-solid blocks
++                    BlockPos below = current.below();
++                    if (isIceType(serverLevel, below)) {
++                        return Vec3.atCenterOf(below).add(0, 0.6, 0);
++                    }
++                    current = current.relative(direction);
++                } else {
++                    break;
++                }
++            }
++        }
++        return null;
++    }
++
 +    private static boolean isIceType(ServerLevel level, BlockPos pos) {
 +        var block = level.getBlockState(pos).getBlock();
 +        return block == net.minecraft.world.level.block.Blocks.ICE ||
-+               block == net.minecraft.world.level.block.Blocks.PACKED_ICE ||
-+               block == net.minecraft.world.level.block.Blocks.BLUE_ICE;
++                block == net.minecraft.world.level.block.Blocks.PACKED_ICE ||
++                block == net.minecraft.world.level.block.Blocks.BLUE_ICE;
 +    }
++    // atDeprecated end
 +
      @Override
      protected void playSound(BlockSource blockSource) {
