@@ -4,7 +4,7 @@ Date: Thu, 24 Jul 2025 23:04:37 +0700
 Subject: [PATCH] Lophine: Add config to enable Raytracing tracker
 
 Co-authored by: MrHua269 <wangxyper@163.com>
-As part of: Purpur (https://github.com/LuminolMC/Lophine/blob/904abaa56499a869259d3e6b3e586c1d33e34d28/lophine-server/minecraft-patches/features/0006-Add-config-to-enable-Raytracing-tracker.patch)
+As part of: Lophine (https://github.com/LuminolMC/Lophine/blob/904abaa56499a869259d3e6b3e586c1d33e34d28/lophine-server/minecraft-patches/features/0006-Add-config-to-enable-Raytracing-tracker.patch)
 Licensed under: MIT (https://github.com/LuminolMC/Lophine/blob/904abaa56499a869259d3e6b3e586c1d33e34d28/LICENSE.md)
 
 diff --git a/net/minecraft/server/level/ChunkMap.java b/net/minecraft/server/level/ChunkMap.java

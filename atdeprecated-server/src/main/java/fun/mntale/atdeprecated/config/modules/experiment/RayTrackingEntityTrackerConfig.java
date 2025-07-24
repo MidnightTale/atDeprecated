@@ -18,6 +18,9 @@ public class RayTrackingEntityTrackerConfig implements IConfigModule {
     @ConfigInfo(name = "check-interval-ms", comments = "The interval in milliseconds to check for culling.")
     public int checkIntervalMs = 500;
 
+    @ConfigInfo(name = "skip-marker-armor-stands", comments = "Enable this to skip marker armor stands from being culled.")
+    public boolean skipMarkerArmorStands = true;
+
     @Override
     public EnumConfigCategory getCategory() {
         return EnumConfigCategory.EXPERIMENT;
