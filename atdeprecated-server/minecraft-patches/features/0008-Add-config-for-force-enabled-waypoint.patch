@@ -1,0 +1,175 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Thu, 24 Jul 2025 08:38:51 +0700
+Subject: [PATCH] Add config for force enabled waypoint
+
+
+diff --git a/net/minecraft/commands/Commands.java b/net/minecraft/commands/Commands.java
+index 8a90aa5c145f53afbb3f2371f97cb09974f30bbb..f08f4cb7258726b740b3e0b21e8832455b29d6c6 100644
+--- a/net/minecraft/commands/Commands.java
++++ b/net/minecraft/commands/Commands.java
+@@ -247,7 +247,9 @@ public class Commands {
+         TimeCommand.register(this.dispatcher);
+         TitleCommand.register(this.dispatcher, context);
+         //TriggerCommand.register(this.dispatcher); // Folia - region threading - TODO later
+-        //WaypointCommand.register(this.dispatcher, context); // Folia - region threading - TODO later
++        if (fun.mntale.atdeprecated.config.AtCoreConfig.WAYPOINT_CONFIG.forceEnable) { // atDeprecated - Force enabled waypoint
++            WaypointCommand.register(this.dispatcher, context); // Folia - region threading - TODO later
++        }
+         WeatherCommand.register(this.dispatcher);
+         WorldBorderCommand.register(this.dispatcher);
+         if (JvmProfiler.INSTANCE.isAvailable()) {
+diff --git a/net/minecraft/server/waypoints/ServerWaypointManager.java b/net/minecraft/server/waypoints/ServerWaypointManager.java
+index 0f8cacbb8fe55a60e2f0c98bf36c005b29f41a4b..b489f47c914a65654289de9d811a28de5a8780e5 100644
+--- a/net/minecraft/server/waypoints/ServerWaypointManager.java
++++ b/net/minecraft/server/waypoints/ServerWaypointManager.java
+@@ -6,6 +6,7 @@ import com.google.common.collect.Sets;
+ import com.google.common.collect.Table;
+ import com.google.common.collect.Tables;
+ import com.google.common.collect.Sets.SetView;
++import java.util.Collections;
+ import java.util.HashSet;
+ import java.util.Map;
+ import java.util.Set;
+@@ -16,29 +17,48 @@ import net.minecraft.world.waypoints.WaypointManager;
+ import net.minecraft.world.waypoints.WaypointTransmitter;
+ 
+ public class ServerWaypointManager implements WaypointManager<WaypointTransmitter> {
+-    private final Set<WaypointTransmitter> waypoints = new HashSet<>();
+-    private final Set<ServerPlayer> players = new HashSet<>();
+-    private final Table<ServerPlayer, WaypointTransmitter, WaypointTransmitter.Connection> connections = HashBasedTable.create();
++    // atDeprecated start - Thread safe collections
++    private final Set<WaypointTransmitter> waypoints = Collections.synchronizedSet(new HashSet<>());
++    private final Set<ServerPlayer> players = Collections.synchronizedSet(new HashSet<>());
++    private final Table<ServerPlayer, WaypointTransmitter, WaypointTransmitter.Connection> connections = Tables.synchronizedTable(HashBasedTable.create());
++    // atDeprecated end
+ 
+     @Override
+     public void trackWaypoint(WaypointTransmitter waypoint) {
+-        // Folia - region threading
++        // atDeprecated start - Force enabled waypoint
++        if (fun.mntale.atdeprecated.config.AtCoreConfig.WAYPOINT_CONFIG.forceEnable) {
++            synchronized (this) {
++                this.waypoints.add(waypoint);
++                for (ServerPlayer serverPlayer : this.players) {
++                    this.createConnection(serverPlayer, waypoint);
++                }
++            }
++        }
++        // atDeprecated end - Force enabled waypoint
+     }
+ 
+     @Override
+     public void updateWaypoint(WaypointTransmitter waypoint) {
+-        if (this.waypoints.contains(waypoint)) {
+-            Map<ServerPlayer, WaypointTransmitter.Connection> map = Tables.transpose(this.connections).row(waypoint);
+-            SetView<ServerPlayer> set = Sets.difference(this.players, map.keySet());
+-
+-            for (Entry<ServerPlayer, WaypointTransmitter.Connection> entry : ImmutableSet.copyOf(map.entrySet())) {
+-                this.updateConnection(entry.getKey(), waypoint, entry.getValue());
+-            }
++        // atDeprecated start - Thread safe
++        synchronized (this) {
++            if (this.waypoints.contains(waypoint)) {
++                Map<ServerPlayer, WaypointTransmitter.Connection> map = Tables.transpose(this.connections).row(waypoint);
++                Set<ServerPlayer> currentPlayers = ImmutableSet.copyOf(this.players);
++                SetView<ServerPlayer> set = Sets.difference(currentPlayers, map.keySet());
++
++                // Update existing connections
++                Set<Entry<ServerPlayer, WaypointTransmitter.Connection>> entries = ImmutableSet.copyOf(map.entrySet());
++                for (Entry<ServerPlayer, WaypointTransmitter.Connection> entry : entries) {
++                    this.updateConnection(entry.getKey(), waypoint, entry.getValue());
++                }
+ 
+-            for (ServerPlayer serverPlayer : set) {
+-                this.createConnection(serverPlayer, waypoint);
++                // Create new connections
++                for (ServerPlayer serverPlayer : set) {
++                    this.createConnection(serverPlayer, waypoint);
++                }
+             }
+         }
++        // atDeprecated end
+     }
+ 
+     @Override
+@@ -49,26 +69,72 @@ public class ServerWaypointManager implements WaypointManager<WaypointTransmitte
+     }
+ 
+     public void addPlayer(ServerPlayer player) {
+-        // Folia - region threading
++        // atDeprecated start - Force enabled waypoint
++        if (fun.mntale.atdeprecated.config.AtCoreConfig.WAYPOINT_CONFIG.forceEnable) {
++            synchronized (this) {
++                this.players.add(player);
++                for (WaypointTransmitter waypointTransmitter : this.waypoints) {
++                    this.createConnection(player, waypointTransmitter);
++                }
++                if (player.isTransmittingWaypoint()) {
++                    this.trackWaypoint((WaypointTransmitter)player);
++                }
++            }
++        }
++        // atDeprecated end - Force enabled waypoint
+     }
+ 
+     public void updatePlayer(ServerPlayer player) {
+-        // Folia - region threading
++        // atDeprecated start - Force enabled waypoint
++        if (fun.mntale.atdeprecated.config.AtCoreConfig.WAYPOINT_CONFIG.forceEnable) {
++            synchronized (this) {
++                Map<WaypointTransmitter, WaypointTransmitter.Connection> map = this.connections.row(player);
++                SetView<WaypointTransmitter> set = Sets.difference(this.waypoints, map.keySet());
++                for (Entry<WaypointTransmitter, WaypointTransmitter.Connection> entry : ImmutableSet.copyOf(map.entrySet())) {
++                    this.updateConnection(player, entry.getKey(), entry.getValue());
++                }
++                for (WaypointTransmitter waypointTransmitter : ImmutableSet.copyOf(set)) {
++                    this.createConnection(player, waypointTransmitter);
++                }
++            }
++        }
++        // atDeprecated end - Force enabled waypoint
+     }
+ 
+     public void removePlayer(ServerPlayer player) {
+-        // Folia - region threading
++        // atDeprecated start - Force enabled waypoint
++        if (fun.mntale.atdeprecated.config.AtCoreConfig.WAYPOINT_CONFIG.forceEnable) {
++            synchronized (this) {
++                this.connections.row(player).values().removeIf(connection -> {
++                    connection.disconnect();
++                    return true;
++                });
++                this.untrackWaypoint((WaypointTransmitter)player);
++                this.players.remove(player);
++            }
++        }
++        // atDeprecated end - Force enabled waypoint
+     }
+ 
+     public void breakAllConnections() {
+-        this.connections.values().forEach(WaypointTransmitter.Connection::disconnect);
+-        this.connections.clear();
++        // atDeprecated start - Thread safe
++        synchronized (this) {
++            Set<WaypointTransmitter.Connection> currentConnections = ImmutableSet.copyOf(this.connections.values());
++            currentConnections.forEach(WaypointTransmitter.Connection::disconnect);
++            this.connections.clear();
++        }
++        // atDeprecated end
+     }
+ 
+     public void remakeConnections(WaypointTransmitter waypoint) {
+-        for (ServerPlayer serverPlayer : this.players) {
+-            this.createConnection(serverPlayer, waypoint);
++        // atDeprecated start - Thread safe
++        synchronized (this) {
++            Set<ServerPlayer> currentPlayers = ImmutableSet.copyOf(this.players);
++            for (ServerPlayer serverPlayer : currentPlayers) {
++                this.createConnection(serverPlayer, waypoint);
++            }
+         }
++        // atDeprecated end
+     }
+ 
+     public Set<WaypointTransmitter> transmitters() {

@@ -2,6 +2,7 @@ package fun.mntale.atdeprecated.config;
 
 import fun.mntale.atdeprecated.config.modules.features.AnvilConfig;
 import fun.mntale.atdeprecated.config.modules.features.BeaconConfig;
+import fun.mntale.atdeprecated.config.modules.experiment.WaypointConfig;
 import fun.mntale.atdeprecated.config.modules.features.DispenserConfig;
 import fun.mntale.atdeprecated.config.modules.features.ElytraConfig;
 import fun.mntale.atdeprecated.config.modules.features.PlayerConfig;
@@ -16,6 +17,7 @@ public class AtCoreConfig {
     public static final DispenserConfig DISPENSER_CONFIG = new DispenserConfig();
     public static final ElytraConfig ELYTRA_CONFIG = new ElytraConfig();
     public static final PlayerConfig PLAYER_CONFIG = new PlayerConfig();
+    public static final WaypointConfig WAYPOINT_CONFIG = new WaypointConfig();
     public static final RemovedConfig REMOVED_CONFIG = new RemovedConfig();
 
     public static void init() {
@@ -33,6 +35,7 @@ public class AtCoreConfig {
         configManager.registerModule(DISPENSER_CONFIG);
         configManager.registerModule(ELYTRA_CONFIG);
         configManager.registerModule(PLAYER_CONFIG);
+        configManager.registerModule(WAYPOINT_CONFIG);
         configManager.registerModule(REMOVED_CONFIG);
     }
 }
