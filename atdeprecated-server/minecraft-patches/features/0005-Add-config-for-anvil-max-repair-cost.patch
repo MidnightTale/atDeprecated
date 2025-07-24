@@ -1,11 +1,11 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: MidnightTale <midnighttale24@gmail.com>
-Date: Sat, 19 Jul 2025 22:31:31 +0700
-Subject: [PATCH] Remove anvil too expensive cap
+Date: Thu, 24 Jul 2025 07:14:23 +0700
+Subject: [PATCH] Add config for anvil max repair cost
 
 
 diff --git a/net/minecraft/world/inventory/AnvilMenu.java b/net/minecraft/world/inventory/AnvilMenu.java
-index 2346e1fc0c94084c3bb95c00be8aac36ae5f26ae..5915b6722b727875660ee9c94bd8ed5cbbb0c1ff 100644
+index 2346e1fc0c94084c3bb95c00be8aac36ae5f26ae..63e986e2c2c7f75d72d2cf1c4e7fafd6e82a2960 100644
 --- a/net/minecraft/world/inventory/AnvilMenu.java
 +++ b/net/minecraft/world/inventory/AnvilMenu.java
 @@ -46,7 +46,7 @@ public class AnvilMenu extends ItemCombinerMenu {
@@ -13,7 +13,7 @@ index 2346e1fc0c94084c3bb95c00be8aac36ae5f26ae..5915b6722b727875660ee9c94bd8ed5c
      // CraftBukkit start
      public static final int DEFAULT_DENIED_COST = -1;
 -    public int maximumRepairCost = 40;
-+    public int maximumRepairCost = Integer.MAX_VALUE; // atDeprecated - Remove too expensive anvil cap
++    public int maximumRepairCost = fun.mntale.atdeprecated.config.AtCoreConfig.ANVIL_CONFIG.maximumRepairCost < 0 ? Integer.MAX_VALUE : fun.mntale.atdeprecated.config.AtCoreConfig.ANVIL_CONFIG.maximumRepairCost; // atDeprecated - Remove too expensive anvil cap
      private org.bukkit.craftbukkit.inventory.view.CraftAnvilView bukkitEntity;
      // CraftBukkit end
      public boolean bypassEnchantmentLevelRestriction = false; // Paper - bypass anvil level restrictions

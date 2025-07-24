@@ -1,5 +1,6 @@
 package fun.mntale.atdeprecated.config;
 
+import fun.mntale.atdeprecated.config.modules.features.AnvilConfig;
 import fun.mntale.atdeprecated.config.modules.features.BeaconConfig;
 import fun.mntale.atdeprecated.config.modules.features.DispenserConfig;
 import fun.mntale.atdeprecated.config.modules.features.ElytraConfig;
@@ -9,6 +10,7 @@ import java.io.File;
 public class AtCoreConfig {
     private static final ConfigManager configManager = new ConfigManager(new File("atdeprecated/atdeprecated-global.toml"));
 
+    public static final AnvilConfig ANVIL_CONFIG = new AnvilConfig();
     public static final BeaconConfig BEACON_CONFIG = new BeaconConfig();
     public static final DispenserConfig DISPENSER_CONFIG = new DispenserConfig();
     public static final ElytraConfig ELYTRA_CONFIG = new ElytraConfig();
@@ -24,6 +26,7 @@ public class AtCoreConfig {
     }
 
     private static void registerModules() {
+        configManager.registerModule(ANVIL_CONFIG);
         configManager.registerModule(BEACON_CONFIG);
         configManager.registerModule(DISPENSER_CONFIG);
         configManager.registerModule(ELYTRA_CONFIG);
