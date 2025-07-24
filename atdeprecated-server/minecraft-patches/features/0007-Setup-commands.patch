@@ -1,0 +1,18 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Thu, 24 Jul 2025 08:24:07 +0700
+Subject: [PATCH] Setup commands
+
+
+diff --git a/net/minecraft/server/dedicated/DedicatedServer.java b/net/minecraft/server/dedicated/DedicatedServer.java
+index f316bcd8dab860961a964c31512f9eb43f286ebd..aab00d6b754995c2ad962ed359ac729411af22e3 100644
+--- a/net/minecraft/server/dedicated/DedicatedServer.java
++++ b/net/minecraft/server/dedicated/DedicatedServer.java
+@@ -236,6 +236,7 @@ public class DedicatedServer extends MinecraftServer implements ServerInterface
+         // CraftBukkit start
+         this.server.loadPlugins();
+         this.server.enablePlugins(org.bukkit.plugin.PluginLoadOrder.STARTUP);
++        fun.mntale.atdeprecated.commands.CommandManager.init(); // atDeprecated - Register commands
+         // CraftBukkit end
+ 
+         // Paper start - Add Velocity IP Forwarding Support

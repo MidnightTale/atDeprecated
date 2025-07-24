@@ -1,0 +1,59 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Thu, 24 Jul 2025 07:30:57 +0700
+Subject: [PATCH] Add config for toggleinsomnia command
+
+
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index 2842314c712449625e9275aff7707c916c3ea767..7ff3562f4095a1e79a1299b56a080ee5a15cfa0d 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -831,6 +831,7 @@ public abstract class Player extends LivingEntity {
+         this.currentImpulseImpactPos = input.read("current_explosion_impact_pos", Vec3.CODEC).orElse(null);
+         this.ignoreFallDamageFromCurrentImpulse = input.getBooleanOr("ignore_fall_damage_from_current_explosion", false);
+         this.currentImpulseContextResetGraceTime = input.getIntOr("current_impulse_context_reset_grace_time", 0);
++        this.insomniaEnabled = input.getBooleanOr("atDeprecated.InsomniaEnabled", true);         // atDeprecated - Load insomniaEnabled
+     }
+ 
+     @Override
+@@ -860,6 +861,7 @@ public abstract class Player extends LivingEntity {
+         output.storeNullable("current_explosion_impact_pos", Vec3.CODEC, this.currentImpulseImpactPos);
+         output.putBoolean("ignore_fall_damage_from_current_explosion", this.ignoreFallDamageFromCurrentImpulse);
+         output.putInt("current_impulse_context_reset_grace_time", this.currentImpulseContextResetGraceTime);
++        output.putBoolean("atDeprecated.InsomniaEnabled", this.insomniaEnabled); // atDeprecated - Save insomniaEnabled
+     }
+ 
+     @Override
+@@ -2373,4 +2375,16 @@ public abstract class Player extends LivingEntity {
+             return this.message;
+         }
+     }
++
++    // atDeprecated start - Per-player insomnia toggle for phantom spawning
++    private boolean insomniaEnabled = fun.mntale.atdeprecated.config.AtCoreConfig.PLAYER_CONFIG.defaultInsomniaState;
++
++    public boolean isInsomniaEnabled() {
++        return insomniaEnabled;
++    }
++
++    public void setInsomniaEnabled(boolean enabled) {
++        this.insomniaEnabled = enabled;
++    }
++    // atDeprecated end
+ }
+diff --git a/net/minecraft/world/level/levelgen/PhantomSpawner.java b/net/minecraft/world/level/levelgen/PhantomSpawner.java
+index 0cafe46e9a1b053c5e70f20a26b4402632d0f8bf..664ec25a89e3210ecd1d387472e92e5cb83e50a1 100644
+--- a/net/minecraft/world/level/levelgen/PhantomSpawner.java
++++ b/net/minecraft/world/level/levelgen/PhantomSpawner.java
+@@ -41,6 +41,11 @@ public class PhantomSpawner implements CustomSpawner {
+                     // Paper end - Ability to control player's insomnia and phantoms
+                     if (level.getSkyDarken() >= 5 || !level.dimensionType().hasSkyLight()) {
+                         for (ServerPlayer serverPlayer : level.getLocalPlayers()) { // Folia - region threading
++                            // atDeprecated start - Skip players with insomnia disabled
++                            if (fun.mntale.atdeprecated.config.AtCoreConfig.PLAYER_CONFIG.perPlayerInsomnia && serverPlayer instanceof net.minecraft.world.entity.player.Player p && !p.isInsomniaEnabled()) {
++                                continue;
++                            }
++                            // atDeprecated end
+                             if (!serverPlayer.isSpectator() && (!level.paperConfig().entities.behavior.phantomsDoNotSpawnOnCreativePlayers || !serverPlayer.isCreative())) { // Paper - Add phantom creative and insomniac controls
+                                 BlockPos blockPos = serverPlayer.blockPosition();
+                                 if (!level.dimensionType().hasSkyLight() || blockPos.getY() >= level.getSeaLevel() && level.canSeeSky(blockPos)) {
