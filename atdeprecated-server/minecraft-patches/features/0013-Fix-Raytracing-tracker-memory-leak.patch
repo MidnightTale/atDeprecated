@@ -1,0 +1,81 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Fri, 25 Jul 2025 05:12:34 +0700
+Subject: [PATCH] Fix Raytracing tracker memory leak
+
+
+diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
+index 4480b491250f08350f479c27d17d51fe62bc60f6..39496807d1e6301eb52084414753ebd4e64d1971 100644
+--- a/net/minecraft/world/entity/player/Player.java
++++ b/net/minecraft/world/entity/player/Player.java
+@@ -232,22 +232,6 @@ public abstract class Player extends LivingEntity {
+     // CraftBukkit end
+     // Luminol start - Raytracing entity tracker // atDeprecated - Raytracing entity tracker
+     public dev.tr7zw.entityculling.CullTask cullTask;
+-    {
+-        if (!fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.enabled) {
+-            this.cullTask = null;
+-        }else {
+-            final com.logisticscraft.occlusionculling.OcclusionCullingInstance culling = new com.logisticscraft.occlusionculling.OcclusionCullingInstance(
+-                    fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.tracingDistance,
+-                    new dev.tr7zw.entityculling.DefaultChunkDataProvider(this.level())
+-            );
+-
+-            this.cullTask = new dev.tr7zw.entityculling.CullTask(
+-                    culling, this,
+-                    fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.hitboxLimit,
+-                    fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.checkIntervalMs
+-            );
+-        }
+-    }
+     // Luminol end // atDeprecated - Raytracing entity tracker
+ 
+     public Player(Level level, GameProfile gameProfile) {
+@@ -309,22 +293,27 @@ public abstract class Player extends LivingEntity {
+     public void tick() {
+         // Luminol start - Ray tracing entity tracker // atDeprecated - Ray tracing entity tracker
+         if (!fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.enabled) {
+-            if (this.cullTask != null) this.cullTask.signalStop();
+-            this.cullTask = null;
+-        }else {
+-            final com.logisticscraft.occlusionculling.OcclusionCullingInstance culling = new com.logisticscraft.occlusionculling.OcclusionCullingInstance(
++            if (this.cullTask != null) {
++                this.cullTask.signalStop();
++                this.cullTask = null;
++            }
++        } else {
++            if (this.cullTask == null) {
++                final com.logisticscraft.occlusionculling.OcclusionCullingInstance culling = new com.logisticscraft.occlusionculling.OcclusionCullingInstance(
+                     fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.tracingDistance,
+                     new dev.tr7zw.entityculling.DefaultChunkDataProvider(this.level())
+-            );
+-
+-            this.cullTask = new dev.tr7zw.entityculling.CullTask(
++                );
++                this.cullTask = new dev.tr7zw.entityculling.CullTask(
+                     culling, this,
+                     fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.hitboxLimit,
+                     fun.mntale.atdeprecated.config.AtCoreConfig.RAY_TRACKING_ENTITY_TRACKER_CONFIG.checkIntervalMs
+-            );
++                );
++                this.cullTask.setup();
++            }
++        }
++        if (this.cullTask != null) {
++            this.cullTask.requestCullSignal();
+         }
+-        if (this.cullTask != null) this.cullTask.setup();
+-        if (this.cullTask != null) this.cullTask.requestCullSignal(); // Luminol - Ray tracing entity tracker // atDeprecated - Ray tracing entity tracker
+         // Luminol end // atDeprecated - Ray tracing entity tracker
+ 
+         this.noPhysics = this.isSpectator();
+@@ -1484,6 +1473,9 @@ public abstract class Player extends LivingEntity {
+     // Folia start - region threading
+     @Override
+     protected void preRemove(RemovalReason reason) {
++        if (this.cullTask != null) {
++            this.cullTask.signalStop();
++        }
+         super.preRemove(reason);
+         this.fishing = null;
+     }
