@@ -1,0 +1,65 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Fri, 25 Jul 2025 11:33:18 +0700
+Subject: [PATCH] Grief prevention
+
+
+diff --git a/net/minecraft/server/level/ServerLevel.java b/net/minecraft/server/level/ServerLevel.java
+index 87377bba2ebdc0eba5b7b212d971994c35ca0b62..d356938e3f71cb394e0b5a5b49fb3cca00dab512 100644
+--- a/net/minecraft/server/level/ServerLevel.java
++++ b/net/minecraft/server/level/ServerLevel.java
+@@ -2031,6 +2031,27 @@ public class ServerLevel extends Level implements ServerEntityGetter, WorldGenLe
+         @Nullable java.util.function.Consumer<ServerExplosion> configurator
+     ) {
+         // CraftBukkit end
++        // atDeprecated start - Grief Prevention
++        if (source instanceof net.minecraft.world.entity.item.PrimedTnt && fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventTntGrief) {
++            explosionInteraction = Level.ExplosionInteraction.NONE;
++        } else if (source instanceof net.minecraft.world.entity.monster.Creeper && fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventCreeperGrief) {
++            explosionInteraction = Level.ExplosionInteraction.NONE;
++        } else if (source instanceof net.minecraft.world.entity.vehicle.MinecartTNT && fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventTntMinecartGrief) {
++            explosionInteraction = Level.ExplosionInteraction.NONE;
++        } else if (source instanceof net.minecraft.world.entity.boss.enderdragon.EndCrystal && fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventEndCrystalGrief) {
++            explosionInteraction = Level.ExplosionInteraction.NONE;
++        } else if (source instanceof net.minecraft.world.entity.projectile.WitherSkull && fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventWitherSkullExplode) {
++            explosionInteraction = Level.ExplosionInteraction.NONE;
++        } else if (source instanceof net.minecraft.world.entity.projectile.AbstractHurtingProjectile && fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventFireballGrief) {
++            explosionInteraction = Level.ExplosionInteraction.NONE;
++        } else if (source instanceof net.minecraft.world.entity.boss.wither.WitherBoss && fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventWitherBossExplode) {
++            explosionInteraction = Level.ExplosionInteraction.NONE;
++        } else if (damageSource != null && damageSource.is(net.minecraft.world.damagesource.DamageTypes.BAD_RESPAWN_POINT)) {
++            if (fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventBedGrief || fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventRespawnAnchorGrief) {
++                 explosionInteraction = Level.ExplosionInteraction.NONE;
++            }
++        }
++        // atDeprecated end - Grief Prevention
+         Explosion.BlockInteraction blockInteraction = switch (explosionInteraction) {
+             case NONE -> Explosion.BlockInteraction.KEEP;
+             case BLOCK -> this.getDestroyType(GameRules.RULE_BLOCK_EXPLOSION_DROP_DECAY);
+diff --git a/net/minecraft/world/entity/boss/wither/WitherBoss.java b/net/minecraft/world/entity/boss/wither/WitherBoss.java
+index 787b74c5aa02afc4ba95fa1cdaf6cc21b6554b56..dffb05123e648f70683df2308d3e9493f8a08c02 100644
+--- a/net/minecraft/world/entity/boss/wither/WitherBoss.java
++++ b/net/minecraft/world/entity/boss/wither/WitherBoss.java
+@@ -348,7 +348,7 @@ public class WitherBoss extends Monster implements RangedAttackMob {
+ 
+             if (this.destroyBlocksTick > 0) {
+                 this.destroyBlocksTick--;
+-                if (this.destroyBlocksTick == 0 && level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)) {
++                if (this.destroyBlocksTick == 0 && level.getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING) && !fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventWitherBossDestroyBlock) {
+                     boolean flag = false;
+                     int alternativeTarget = Mth.floor(this.getBbWidth() / 2.0F + 1.0F);
+                     int floor = Mth.floor(this.getBbHeight());
+diff --git a/net/minecraft/world/entity/monster/EnderMan.java b/net/minecraft/world/entity/monster/EnderMan.java
+index c0e38131da55d8a85444ef4248224d37a7271089..e0155727e50060d4ee8f88913fe20fb265e9b66d 100644
+--- a/net/minecraft/world/entity/monster/EnderMan.java
++++ b/net/minecraft/world/entity/monster/EnderMan.java
+@@ -631,6 +631,9 @@ public class EnderMan extends Monster implements NeutralMob {
+ 
+         @Override
+         public boolean canUse() {
++            if (fun.mntale.atdeprecated.config.AtCoreConfig.GRIEF_PREVENTION_CONFIG.preventEndermanGrief) {
++                return false;
++            }
+             return this.enderman.getCarriedBlock() == null
+                 && getServerLevel(this.enderman).getGameRules().getBoolean(GameRules.RULE_MOBGRIEFING)
+                 && this.enderman.getRandom().nextInt(reducedTickDelay(20)) == 0;
