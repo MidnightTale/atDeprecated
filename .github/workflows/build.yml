@@ -1,10 +1,10 @@
-name: atDeprecated CI - neo-scheduler
+name: atDeprecated CI - 1.21.8
 
 on:
   push:
-    branches: [ "experiment/neo-scheduler" ]
+    branches: [ "ver/1.21.8" ]
   pull_request:
-    branches: [ "experiment/neo-scheduler" ]
+    branches: [ "ver/1.21.8" ]
 
 permissions: write-all
 
