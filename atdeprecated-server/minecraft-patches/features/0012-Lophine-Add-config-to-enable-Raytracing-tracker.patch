@@ -3,7 +3,6 @@ From: MidnightTale <midnighttale24@gmail.com>
 Date: Thu, 24 Jul 2025 23:04:37 +0700
 Subject: [PATCH] Lophine: Add config to enable Raytracing tracker
 
-Co-authored by: MrHua269 <wangxyper@163.com>
 As part of: Lophine (https://github.com/LuminolMC/Lophine/blob/904abaa56499a869259d3e6b3e586c1d33e34d28/lophine-server/minecraft-patches/features/0006-Add-config-to-enable-Raytracing-tracker.patch)
 Licensed under: MIT (https://github.com/LuminolMC/Lophine/blob/904abaa56499a869259d3e6b3e586c1d33e34d28/LICENSE.md)
 
@@ -96,7 +95,7 @@ index 6f00ffa05d9597917574357e0069c9b056aa5ce2..af0a8b99188f25adb0a76e227d3debc1
      public EntityType(
          EntityType.EntityFactory<T> factory,
 diff --git a/net/minecraft/world/entity/player/Player.java b/net/minecraft/world/entity/player/Player.java
-index b9b14cd9f0ff5556e076aab21f4c2b85d1e48ee5..4480b491250f08350f479c27d17d51fe62bc60f6 100644
+index d5ba1bea926f0fd3ef38d101055d61eb548679a4..e95884b560b8986568dc84214649f640d84d199e 100644
 --- a/net/minecraft/world/entity/player/Player.java
 +++ b/net/minecraft/world/entity/player/Player.java
 @@ -230,6 +230,25 @@ public abstract class Player extends LivingEntity {

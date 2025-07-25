@@ -3,15 +3,14 @@ From: MidnightTale <midnighttale24@gmail.com>
 Date: Thu, 24 Jul 2025 08:46:30 +0700
 Subject: [PATCH] Purpur: Barrels and enderchests 6 rows
 
-Co-authored by: William Blake Galbreath <Blake.Galbreath@GMail.com>
 As part of: Purpur (https://github.com/PurpurMC/Purpur/blob/09f547de09fc5d886f18f6d99ff389289766ec9d/purpur-server/minecraft-patches/features/0003-Barrels-and-enderchests-6-rows.patch)
 Licensed under: MIT (https://github.com/PurpurMC/Purpur/blob/09f547de09fc5d886f18f6d99ff389289766ec9d/LICENSE)
 
 diff --git a/net/minecraft/server/players/PlayerList.java b/net/minecraft/server/players/PlayerList.java
-index 5c21fc0c749973d17df690fe7e2eab597b198131..d89f91a08d38869296471a78d52fa84ff97be64a 100644
+index 5958732fe6ac391648df07cd76e73c0fb4c312b8..2f4ceb4f26a9861083de02e3d5aa6f10763c20f5 100644
 --- a/net/minecraft/server/players/PlayerList.java
 +++ b/net/minecraft/server/players/PlayerList.java
-@@ -1086,6 +1086,9 @@ public abstract class PlayerList {
+@@ -1087,6 +1087,9 @@ public abstract class PlayerList {
          player.getBukkitEntity().recalculatePermissions(); // CraftBukkit
          this.server.getCommands().sendCommands(player);
          } // Paper - Add sendOpLevel API
@@ -34,7 +33,7 @@ index 7ff3562f4095a1e79a1299b56a080ee5a15cfa0d..aa1a5de33aef5718581bf50ee45b1d2b
      // CraftBukkit start
      public boolean fauxSleeping;
 diff --git a/net/minecraft/world/inventory/ChestMenu.java b/net/minecraft/world/inventory/ChestMenu.java
-index 0fffa384f928ab84451331380968fb4650eafe26..8cf24c79535d1cf326079f0eacd5f1ac25e3f365 100644
+index 0fffa384f928ab84451331380968fb4650eafe26..57ac36b77f15966b0e2a6676bfc15b963ec1100a 100644
 --- a/net/minecraft/world/inventory/ChestMenu.java
 +++ b/net/minecraft/world/inventory/ChestMenu.java
 @@ -70,6 +70,26 @@ public class ChestMenu extends AbstractContainerMenu {

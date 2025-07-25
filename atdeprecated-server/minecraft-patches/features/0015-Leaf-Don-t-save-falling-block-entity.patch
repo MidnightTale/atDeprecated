@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Fri, 25 Jul 2025 10:50:28 +0700
+Subject: [PATCH] Leaf: Don't save falling block entity
+
+As part of: Leaf (https://github.com/Winds-Studio/Leaf/blob/006fe7ce3a58e687183271f02e1331f23fc5bd99/leaf-server/minecraft-patches/features/0138-Don-t-save-falling-block-entity.patch)
+Licensed under: MIT (https://github.com/Winds-Studio/Leaf/blob/006fe7ce3a58e687183271f02e1331f23fc5bd99/LICENSE.md)
+
+diff --git a/net/minecraft/world/entity/item/FallingBlockEntity.java b/net/minecraft/world/entity/item/FallingBlockEntity.java
+index c444c4b7dc8454abd257030a8c59b9b22b9013d9..8fe609d6506edfe26067af196188a395f9ba966b 100644
+--- a/net/minecraft/world/entity/item/FallingBlockEntity.java
++++ b/net/minecraft/world/entity/item/FallingBlockEntity.java
+@@ -390,4 +390,11 @@ public class FallingBlockEntity extends Entity {
+         this.forceTickAfterTeleportToDuplicate = entity != null && flag && (io.papermc.paper.configuration.GlobalConfiguration.get().unsupportedSettings.allowUnsafeEndPortalTeleportation || me.earthme.luminol.config.modules.fixes.UnsafeTeleportationConfig.enabled); // Paper // Luminol - Unsafe teleportation
+         return entity;
+     }
++
++    // Leaf start - PMC - Don't save falling block entity
++    @Override
++    public boolean shouldBeSaved() {
++        return !fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.dontSaveFallingBlock && super.shouldBeSaved();
++    }
++    // Leaf end - PMC - Don't save falling block entity
+ }
