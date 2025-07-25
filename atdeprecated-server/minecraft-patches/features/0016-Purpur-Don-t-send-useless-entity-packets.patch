@@ -1,0 +1,42 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Fri, 25 Jul 2025 11:16:28 +0700
+Subject: [PATCH] Purpur: Don't send useless entity packets
+
+Original license: MIT
+Original project: https://github.com/PurpurMC/Purpur
+
+diff --git a/net/minecraft/server/level/ServerEntity.java b/net/minecraft/server/level/ServerEntity.java
+index 3a9293d5328ef0befa0b709169489b61a2266807..de476f97c42f6949f769aaf9cf5ce18470bd7cda 100644
+--- a/net/minecraft/server/level/ServerEntity.java
++++ b/net/minecraft/server/level/ServerEntity.java
+@@ -231,6 +231,7 @@ public class ServerEntity {
+                     } // SparklyPaper end
+                 }
+ 
++                if (fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.reduceUselessEntityMovePackets && isUselessMoveEntityPacket(packet)) packet = null; // Purpur
+                 if (packet != null) {
+                     this.broadcast.accept(packet);
+                 }
+@@ -291,6 +292,21 @@ public class ServerEntity {
+         );
+     }
+ 
++    // Purpur start
++    private boolean isUselessMoveEntityPacket(@Nullable Packet<?> packet) {
++        if (!(packet instanceof ClientboundMoveEntityPacket moveEntityPacket)) return false;
++        return switch (packet) {
++            case ClientboundMoveEntityPacket.Pos ignored ->
++                moveEntityPacket.getXa() == 0 && moveEntityPacket.getYa() == 0 && moveEntityPacket.getZa() == 0;
++            case ClientboundMoveEntityPacket.PosRot ignored ->
++                moveEntityPacket.getXa() == 0 && moveEntityPacket.getYa() == 0 && moveEntityPacket.getZa() == 0 && moveEntityPacket.getYRot() == 0 && moveEntityPacket.getXRot() == 0;
++            case ClientboundMoveEntityPacket.Rot ignored ->
++                moveEntityPacket.getYRot() == 0 && moveEntityPacket.getXRot() == 0;
++            default -> false;
++        };
++    }
++    // Purpur end
++
+     private void handleMinecartPosRot(NewMinecartBehavior behavior, byte yRot, byte xRot, boolean dirty) {
+         this.sendDirtyEntityData();
+         if (behavior.lerpSteps.isEmpty()) {
