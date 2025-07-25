@@ -2,12 +2,33 @@
 
 # atDeprecated
 
-atDeprecated is a fork of [Luminol](https://github.com/LuminolMC/Luminol), which is a fork of [Folia](https://github.com/PaperMC/Folia).
+atDeprecated is an experimental Minecraft server software fork based on [Luminol](https://github.com/LuminolMC/Luminol), which itself is a fork of [Folia](https://github.com/PaperMC/Folia).
+
 > [!CAUTION]
 > This is an **experimental fork**. Features may be unstable, incomplete, or break unexpectedly.  
 > **Use at your own risk. Not recommended for production servers.**
 
+## About
+
+atDeprecated is a fun version of Luminol:
+
+### Features
+- Configurable beacon ranges
+- Customizable inventory sizes (barrels and ender chests: 1-6 rows)
+- Configurable anvil max repair costs
+- Death loot configuration system
+- Insomnia toggle commands
+- Enhanced boat spawning controls
+- Elytra boost leash check configuration
+
+## Requirements
+
+- **Java 21** or higher
+- **Git** for cloning the repository
+
 ## How to Build
+
+### Quick Build
 
 1.  **Clone the repository:**
     ```bash
@@ -20,20 +41,4 @@ atDeprecated is a fork of [Luminol](https://github.com/LuminolMC/Luminol), which
     ./gradlew applyAllPatches && ./gradlew createMojmapPaperclipJar
     ```
 
-3.  **Rebuild Patches (if needed):**
-    ```bash
-    ./gradlew rebuildAllServerPatches
-    ```
-
-4.  **Rebuild API Patches (if needed):**
-    ```bash
-    ./gradlew rebuildLuminolPatches
-    ```
-    This will rebuild all `foliaApi`, `luminolApi`, and `paperApi` patches.
-
-    If you only need to rebuild patches for a specific API, you can use one of the following:
-    * `./gradlew rebuildFoliaApiPatches`
-    * `./gradlew rebuildLuminolApiPatches`
-    * `./gradlew rebuildPaperApiPatches`
-
-The final JAR will be located in the `atDeprecated-server\build\libs` directory.
+The final JAR will be located in the `atdeprecated-server\build\libs` directory.
