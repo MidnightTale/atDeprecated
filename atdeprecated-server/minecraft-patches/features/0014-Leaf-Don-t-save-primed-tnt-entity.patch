@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: MidnightTale <midnighttale24@gmail.com>
+Date: Fri, 25 Jul 2025 10:48:02 +0700
+Subject: [PATCH] Leaf: Don't save primed tnt entity
+
+As part of: Leaf (https://github.com/Winds-Studio/Leaf/blob/006fe7ce3a58e687183271f02e1331f23fc5bd99/leaf-server/minecraft-patches/features/0137-Don-t-save-primed-tnt-entity.patch)
+Licensed under: MIT (https://github.com/Winds-Studio/Leaf/blob/006fe7ce3a58e687183271f02e1331f23fc5bd99/LICENSE.md)
+
+diff --git a/net/minecraft/world/entity/item/PrimedTnt.java b/net/minecraft/world/entity/item/PrimedTnt.java
+index 732672aa7d915217eb4af44179b2f2ab1e796cca..19c34d9e453b98e633aa272dae7c35b01339532a 100644
+--- a/net/minecraft/world/entity/item/PrimedTnt.java
++++ b/net/minecraft/world/entity/item/PrimedTnt.java
+@@ -246,4 +246,11 @@ public class PrimedTnt extends Entity implements TraceableEntity {
+         return !this.level().paperConfig().fixes.preventTntFromMovingInWater && super.isPushedByFluid();
+     }
+     // Paper end - Option to prevent TNT from moving in water
++
++    // Leaf start - PMC - Don't save primed tnt entity
++    @Override
++    public boolean shouldBeSaved() {
++        return !fun.mntale.atdeprecated.config.AtCoreConfig.ENTITY_CONFIG.dontSavePrimedTNT && super.shouldBeSaved();
++    }
++    // Leaf - PMC - Don't save primed tnt entity
+ }
