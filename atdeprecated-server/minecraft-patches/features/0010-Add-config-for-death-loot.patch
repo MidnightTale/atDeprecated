@@ -5,10 +5,10 @@ Subject: [PATCH] Add config for death loot
 
 
 diff --git a/net/minecraft/server/level/ServerPlayer.java b/net/minecraft/server/level/ServerPlayer.java
-index aa242f3f7589c8edafccccb52effaed7582aa6f4..44d8430361cadacff08b5f543a471982d453ff77 100644
+index 06e41bca6b964ca71ea7bca547b03cdb3610ba31..a4c3e3ea1176adcf4812d4ec0f87e1004df6f9f6 100644
 --- a/net/minecraft/server/level/ServerPlayer.java
 +++ b/net/minecraft/server/level/ServerPlayer.java
-@@ -1250,7 +1250,33 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
+@@ -1249,7 +1249,33 @@ public class ServerPlayer extends Player implements ca.spottedleaf.moonrise.patc
          if (!keepInventory) {
              for (ItemStack item : this.getInventory().getContents()) {
                  if (!item.isEmpty() && !EnchantmentHelper.has(item, net.minecraft.world.item.enchantment.EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
