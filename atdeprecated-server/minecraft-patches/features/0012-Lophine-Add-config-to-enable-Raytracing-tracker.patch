@@ -20,7 +20,7 @@ index 6868b915bf3deb85783a638d4441a15fea6da2dc..d6b5a6fe6c314edf4faba34af0f42908
                      double rangeY = level.paperConfig().entities.trackingRangeY.get(this.entity, -1);
                      if (rangeY != -1) {
 diff --git a/net/minecraft/world/entity/Entity.java b/net/minecraft/world/entity/Entity.java
-index dc3d29b7d1590ba366755fef51e4254d901d0da8..90084f1d999adc805e009096d3ca785b22fe8318 100644
+index 894897a120123cb54f9dba898748724173c01f57..e4789db560b506d4f03c1f492bfd26e54eaf1984 100644
 --- a/net/minecraft/world/entity/Entity.java
 +++ b/net/minecraft/world/entity/Entity.java
 @@ -147,7 +147,7 @@ import net.minecraft.world.waypoints.WaypointTransmitter;
@@ -32,7 +32,7 @@ index dc3d29b7d1590ba366755fef51e4254d901d0da8..90084f1d999adc805e009096d3ca785b
      // CraftBukkit start
      private static final int CURRENT_LEVEL = 2;
      public boolean preserveMotion = true; // Paper - Fix Entity Teleportation and cancel velocity if teleported; keep initial motion on first snapTo
-@@ -6352,4 +6352,47 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
+@@ -6365,4 +6365,47 @@ public abstract class Entity implements SyncedDataHolder, Nameable, EntityAccess
      // Paper end - Expose entity id counter
  
      public boolean shouldTickHot() { return this.tickCount > 20 * 10 && this.isAlive(); } // KioCG
