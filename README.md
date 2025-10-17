@@ -42,3 +42,12 @@ atDeprecated is a fun version of Luminol:
     ```
 
 The final JAR will be located in the `atdeprecated-server\build\libs` directory.
+
+
+## Development Tools
+
+This project uses **JProfiler**, a Java profiler, to help analyze and optimize performance during development.  
+
+[![JProfiler](https://www.ej-technologies.com/images/product_banners/jprofiler_large.png)](https://www.ej-technologies.com/jprofiler "Java profiler")  
+
+For more information about JProfiler, visit the [JProfiler Java profiler website](https://www.ej-technologies.com/jprofiler).
